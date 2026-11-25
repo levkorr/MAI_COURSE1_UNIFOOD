@@ -28,7 +28,7 @@ h1, h2, h3 { margin: 0; }
 #plan-status:not(:empty), #plan-time-note:not(:empty) { margin-block-start: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--surface-radius-control); }
 .workspace-switch { display: none; }
 
-.results { display: grid; align-content: start; gap: var(--space-16); }
+.results { display: flex; flex-direction: column; gap: var(--space-16); }
 .results-heading, .result-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-8); }
 .results-heading h2 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--inline-gap); }
 .filters {
@@ -45,7 +45,18 @@ h1, h2, h3 { margin: 0; }
   padding-inline: var(--space-4);
   overflow-wrap: anywhere;
 }
-#cards { display: grid; gap: var(--space-12); }
+#cards {
+  display: grid;
+  align-content: start;
+  gap: var(--space-12);
+  min-block-size: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+#cards:focus-visible {
+  outline: var(--interaction-focus-width) solid var(--color-focus);
+  outline-offset: var(--interaction-focus-offset);
+}
 .map-selection > div { min-inline-size: 0; overflow-wrap: anywhere; }
 .card.map-selected { border-color: var(--surface-control-border); }
 .map-place-detail { text-align: start; }
@@ -65,6 +76,8 @@ h1, h2, h3 { margin: 0; }
 .map-selection > div:nth-child(2) { flex: 1 1 auto; }
 .map-selection > div > span { display: block; }
 .map-caption, .insight, .disclaimer { margin-block-start: var(--space-12); }
+.disclaimer { display: flex; align-items: flex-start; gap: var(--inline-gap); }
+.disclaimer p { margin: 0; }
 
 .load-map-icon, .campus-map-icon > span {
   display: flex;
@@ -119,7 +132,15 @@ h1, h2, h3 { margin: 0; }
 .source-link { display: inline-flex; align-items: center; min-block-size: var(--target-min); }
 .check-in-primary { display: block; margin-block-start: var(--space-16); }
 
+@media (min-width: 731px) {
+  #cards:not(:empty) {
+    flex: 1 1 0;
+    contain: size;
+  }
+}
+
 @media (max-width: 730px) {
+  #cards { max-block-size: 60dvh; }
   .workspace-switch { display: flex; }
   .workspace-switch button { flex: 1; }
   #workspace[data-view="list"] #place-map,

@@ -95,6 +95,7 @@ try {
     assert.equal(await visible('#place-results'), true);
     assert.equal(await visible('#place-map'), false);
     assert.equal(await noOverflow(), true);
+    assert.equal(await run("document.querySelector('#cards').scrollHeight > document.querySelector('#cards').clientHeight"), true);
     assert.deepEqual(await filterRows(), expectedFilterRows);
     assert.equal(await run("['#show-map','#university','#break','#time','.filters button','.place-title','.heart','.locate-place'].every(s => document.querySelector(s).offsetHeight >= 44)"), true);
     await tap('#show-map');
@@ -117,13 +118,15 @@ try {
   assert.equal(await visible('#place-map'), true);
   assert.equal(await run("document.querySelector('#show-map').getAttribute('aria-pressed')"), 'true');
   assert.equal(await run("document.querySelector('.map-place-detail').textContent"), selectedTitle);
-  await until(() => run(`(() => {
+  const markerPoint = await until(() => run(`(() => {
     const marker = document.querySelector('.load-map-icon.is-selected');
     marker.scrollIntoView({block: 'center'});
     const {x,y,width,height} = marker.getBoundingClientRect();
-    return marker.contains(document.elementFromPoint(x+width/2,y+height/2));
+    const point = {x: x+width/2, y: y+height/2};
+    return marker.contains(document.elementFromPoint(point.x, point.y)) ? point : null;
   })()`), 'selected marker reachable');
-  await tap('.load-map-icon.is-selected');
+  await send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [markerPoint]});
+  await send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
   await until(() => visible('.leaflet-popup .popup-check-in'), 'marker popup');
   await tap('.map-reset');
   const scale = await run("document.querySelector('.leaflet-image-layer').style.width");
@@ -171,6 +174,12 @@ try {
   assert.deepEqual(await run("['#university','#time'].map(id=>document.querySelector(id).value)"), searchState);
   await tap('[data-category=all]');
   assert.equal(await visible('.card'), true);
+  assert.equal(await run(`(() => {
+    const cards = document.querySelector('#cards');
+    const disclaimer = document.querySelector('#place-map .disclaimer');
+    return cards.scrollHeight > cards.clientHeight &&
+      Math.abs(cards.getBoundingClientRect().bottom - disclaimer.getBoundingClientRect().bottom) < 2;
+  })()`), true);
   assert.deepEqual(errors, []);
   console.log('1280px: both columns, retained search, favorites filter and no JavaScript exceptions');
 

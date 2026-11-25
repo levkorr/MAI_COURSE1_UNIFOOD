@@ -279,7 +279,9 @@ function render(){
  const sort=$('#sort').value;
  const list=places.filter(p=>category==='all'||(category==='favorites'?saved.has(p.id):p.category===category)).sort((a,b)=>Number(saved.has(b.id))-Number(saved.has(a.id))||(sort==='walk'?a.walk-b.walk:planned()?a.planned_count-b.planned_count:a.load-b.load));
  $('#count').textContent=list.length;$('#fav-count').textContent=saved.size;$('#empty').hidden=!!list.length;
- $('#cards').replaceChildren(...list.map(renderPlaceCard));
+ const cards = $('#cards');
+ cards.replaceChildren(...list.map(renderPlaceCard));
+ cards.tabIndex = list.length ? 0 : -1;
  renderMap(list);
  document.querySelectorAll('[data-locate]').forEach(button => button.onclick = () => {
   if (mobileLayout.matches) {
