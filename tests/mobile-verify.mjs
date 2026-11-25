@@ -148,7 +148,8 @@ try {
   assert.equal(await visible('#workspace-switch'), false);
   assert.equal(await visible('#place-results'), true);
   assert.equal(await visible('#place-map'), true);
-  assert.equal(await run("getComputedStyle(document.querySelector('#workspace')).gridTemplateColumns.split(' ').length"), 2);
+  assert.equal(await run("getComputedStyle(document.querySelector('#workspace')).gridTemplateColumns.split(' ').length"), 12);
+  assert.equal(await run("document.querySelector('#place-results').getBoundingClientRect().right < document.querySelector('#place-map').getBoundingClientRect().left"), true);
   assert.deepEqual(await run("['#university','#time','#visit-date'].map(id=>document.querySelector(id).value)"), searchState);
   await tap('[data-category=all]');
   assert.equal(await visible('.card'), true);
