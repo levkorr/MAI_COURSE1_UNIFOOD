@@ -25,3 +25,139 @@ h2 .heading-label{font-size:inherit;vertical-align:baseline;margin:0;border-radi
 .search{position:relative;display:grid;place-items:center;text-align:center;padding:0 42px}.search span{position:absolute;right:16px;top:50%;transform:translateY(-50%);padding-left:0}
 #plan-day:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:-18px 0 30px;font-size:12px}#visit-date{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:white}#plan-day-note{color:#956b2a;font-size:11px}.check-in-trigger:disabled,#detail-check-in:disabled{cursor:default;opacity:.55}
 
+.workspace-switch {
+  display: none;
+}
+
+@media (max-width: 730px) {
+  .workspace-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 16px;
+    background: #eef2e7;
+    border-radius: 10px;
+  }
+
+  .workspace-switch button {
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    font-weight: 700;
+  }
+
+  .workspace-switch button[aria-pressed="true"] {
+    background: #2e503b;
+    color: white;
+  }
+
+  #workspace[data-view="list"] #place-map,
+  #workspace[data-view="map"] #place-results {
+    display: none;
+  }
+
+  #workspace > * {
+    min-width: 0;
+  }
+
+  .planner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .planner label,
+  .planner label:first-child {
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  .planner label:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .planner label > span {
+    margin-bottom: 4px;
+  }
+
+  .planner select,
+  #visit-date,
+  .result-meta select {
+    font-size: 16px;
+  }
+
+  .planner select {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding-inline: 6px;
+  }
+
+  .workspace-switch button,
+  .planner select,
+  #visit-date,
+  .result-meta select,
+  .filters button,
+  .place-title,
+  .heart,
+  .locate-place,
+  .map-place-detail,
+  .check-in-trigger,
+  .check-in-primary,
+  #close-dialog,
+  .check-in-close,
+  .map-reset {
+    min-height: 44px;
+  }
+
+  .heart,
+  #close-dialog,
+  .check-in-close {
+    min-width: 44px;
+  }
+
+  .heart {
+    flex-shrink: 0;
+  }
+
+  .card-top > div:nth-child(2),
+  .map-selection > div:nth-child(2) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .result-meta {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .result-meta select {
+    max-width: 100%;
+  }
+
+  #map .leaflet-control-zoom a {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+  }
+
+  #detail,
+  #check-in {
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    overflow-wrap: anywhere;
+    padding: 24px 16px 16px;
+  }
+
+  .people-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 390px) {
+  .planner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+

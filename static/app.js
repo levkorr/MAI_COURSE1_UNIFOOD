@@ -1,7 +1,18 @@
 const $ = s => document.querySelector(s);
 const escapeHTML = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let selectedMapId = null;
-let schematicMap, mapMarkers, visibleMapPlaces = [];
+let schematicMap, mapMarkers, resizeMap, visibleMapPlaces = [];
+const mobileLayout = matchMedia('(max-width: 730px)');
+const viewButtons = document.querySelectorAll('[data-view]');
+
+function setWorkspaceView(view) {
+ const workspace = $('#workspace');
+ if (view !== workspace.dataset.view && view === 'list') schematicMap?.closePopup();
+ workspace.dataset.view = view;
+ viewButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
+ if (view === 'map') resizeMap?.();
+}
+
 const universities=JSON.parse($('#university-data').textContent);
 let university='mai', mapResizeObserver;
 let ORIGIN={lat:universities[university].campus[0],lon:universities[university].campus[1]};
@@ -63,6 +74,7 @@ async function submitCheckIn(event){
 }
 function initMap(){
  mapResizeObserver?.disconnect();if(schematicMap)schematicMap.remove();schematicMap=null;mapMarkers=null;
+ resizeMap = null;
  $('#check-in')?.remove();
  const dialog=document.createElement('dialog');dialog.id='check-in';
  dialog.innerHTML=`<button class="check-in-close" type="button" aria-label="Закрыть отметку">×</button><div class="check-in-eyebrow">ПОМОГИ ДРУГИМ СТУДЕНТАМ</div><h2>Я здесь</h2><p id="check-in-name"></p><form id="check-in-form"><fieldset><legend>Сколько людей сейчас в заведении?</legend><div class="people-options">${['0-5','5-10','10-15','15-20'].map(range=>`<label><input type="radio" name="people_range" value="${range}" required><span>${range.replace('-','–')}<small>человек</small></span></label>`).join('')}</div></fieldset><p class="check-in-note">Примерной оценки достаточно. Оценка учитывается в загруженности 30 минут. Процент — средняя оценка числа людей относительно 20 посетителей.</p><button id="check-in-submit" class="check-in-primary" type="submit">Поделиться</button><p id="check-in-status" role="status" aria-live="polite"></p></form>`;
@@ -77,7 +89,10 @@ function initMap(){
  schematicMap=L.map('schematic-view',{crs:L.CRS.Simple,minZoom:-5,maxBounds:bounds,maxBoundsViscosity:1,maxZoom:2,zoomSnap:0.1,zoomDelta:0.25,scrollWheelZoom:true,wheelDebounceTime:40,wheelPxPerZoomLevel:180,zoomAnimation:true,zoomAnimationThreshold:4,markerZoomAnimation:true,fadeAnimation:false,inertia:true,attributionControl:false});
  L.imageOverlay('/static/'+universities[university].map+'?v=universities',bounds,{interactive:false}).addTo(schematicMap);
  const resetView=()=>{schematicMap.invalidateSize();schematicMap.setMinZoom(-5);const zoom=schematicMap.getBoundsZoom(bounds);schematicMap.setMinZoom(zoom);schematicMap.fitBounds(bounds,{animate:false});};
- resetView();
+ const mapView = $('#schematic-view');
+ let needsFit = !mapView.clientWidth;
+ if (!needsFit) resetView();
+ else schematicMap.setView(bounds.getCenter(), -2);
  L.marker([500,500],{icon:L.divIcon({className:'campus-map-icon',html:`<span>✦</span><b>${universities[university].origin_label}</b>`,iconSize:[39,39],iconAnchor:[19.5,19.5]}),zIndexOffset:1000,title:universities[university].origin_label}).addTo(schematicMap);
  mapMarkers=L.layerGroup().addTo(schematicMap);
  const reset=L.control({position:'topright'});
@@ -85,14 +100,27 @@ function initMap(){
  schematicMap.zoomControl.setPosition('topright');
  schematicMap.zoomControl._zoomInButton.setAttribute('aria-label','Приблизить схему');
  schematicMap.zoomControl._zoomOutButton.setAttribute('aria-label','Отдалить схему');
- let firstResize=true;
- mapResizeObserver=new ResizeObserver(()=>{schematicMap.invalidateSize();schematicMap.setMinZoom(-5);const zoom=schematicMap.getBoundsZoom(bounds);schematicMap.setMinZoom(zoom);if(firstResize){schematicMap.fitBounds(bounds,{animate:false});firstResize=false;}});mapResizeObserver.observe($('#schematic-view'));
+ resizeMap = () => {
+  if (!mapView.clientWidth || !mapView.clientHeight) return;
+  if (needsFit) {
+   needsFit = false;
+   resetView();
+   return;
+  }
+  schematicMap.invalidateSize({ pan: false });
+  schematicMap.setMinZoom(-5);
+  schematicMap.setMinZoom(schematicMap.getBoundsZoom(bounds));
+ };
+ mapResizeObserver = new ResizeObserver(resizeMap);
+ mapResizeObserver.observe(mapView);
 }
 function locate(id){
  selectedMapId=id;
  const p=places.find(p=>p.id===id);
  renderMap(visibleMapPlaces);
- if(p&&schematicMap)schematicMap.flyTo(mapPoint(p).point,Math.max(schematicMap.getZoom(),0.5),{duration:0.35});
+ if(p&&schematicMap&&$('#schematic-view').clientWidth){
+  schematicMap.flyTo(mapPoint(p).point,Math.max(schematicMap.getZoom(),0.5),{duration:0.35});
+ }
  document.querySelectorAll('.card').forEach(card=>card.classList.toggle('map-selected',card.querySelector('[data-locate]')?.dataset.locate===id));
 }
 function renderMap(list){
@@ -152,7 +180,14 @@ function render(){
  $('#count').textContent=list.length;$('#fav-count').textContent=saved.size;$('#empty').hidden=!!list.length;
  $('#cards').innerHTML=list.map(p=>`<article class="card"><div class="card-top"><div class="place-icon">${p.icon}</div><div><button class="place-title" data-detail="${p.id}">${escapeHTML(p.name)} ↗</button><div class="place-meta">${p.label} · ≈ ${p.walk} мин пешком</div></div><button class="heart ${saved.has(p.id)?'saved':''}" data-save="${p.id}" aria-label="${saved.has(p.id)?'Удалить из':'Добавить в'} избранное" aria-pressed="${saved.has(p.id)}">${saved.has(p.id)?'♥':'♡'}</button></div><div class="card-bottom"><span class="badge ${p.tone}"><i></i>${p.status}</span><button class="locate-place" data-locate="${p.id}" aria-label="Показать ${escapeHTML(p.name)} на схеме">На схеме ↗</button><span class="wait">${planned()?`${dayLabel()} около ${loadedTime}`:p.report_count?`≈ ${p.people} чел. сейчас`:'Число людей неизвестно'}</span>${planned()?`<button class="check-in-trigger" data-plan="${p.id}" ${actionDisabled(p)}>${actionLabel(p)}</button>`:`<span class="load">${p.report_count?p.load+'%':'Нет оценок'}</span>`}</div>${reportSummary(p)}</article>`).join('');
  renderMap(list);
- document.querySelectorAll('[data-locate]').forEach(b=>b.onclick=()=>locate(b.dataset.locate));
+ document.querySelectorAll('[data-locate]').forEach(button => button.onclick = () => {
+  if (mobileLayout.matches) {
+   setWorkspaceView('map');
+   $('#show-map').focus();
+   $('#workspace-switch').scrollIntoView({ block: 'nearest' });
+  }
+  locate(button.dataset.locate);
+ });
  document.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>save(b.dataset.save));
  document.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>details(b.dataset.detail));
  document.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>updatePlan(b.dataset.plan));
@@ -181,4 +216,5 @@ async function load(){
 }
 $('#break').onchange=()=>{setTimes();load();};$('#time').onchange=load;$('#visit-date').onchange=load;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.classList.toggle('selected',b===c);c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
 
+viewButtons.forEach(button => button.addEventListener('click', () => setWorkspaceView(button.dataset.view)));
 setInterval(()=>{if(!document.hidden && !document.querySelector("dialog[open]"))load();},60000);
