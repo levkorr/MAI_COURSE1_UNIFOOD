@@ -21,14 +21,15 @@ function showStatus(selector, message, tone = 'neutral') {
 const mobileLayout = matchMedia('(max-width: 730px)');
 const workspace = $('#workspace');
 const mapPanel = $('#place-map');
+const filters = $('.filters');
 
 function syncWorkspaceOrder() {
- const edge = mobileLayout.matches ? workspace.firstElementChild : workspace.lastElementChild;
- if (edge === mapPanel) return;
+ const position = mobileLayout.matches ? filters.nextElementSibling : workspace.lastElementChild;
+ if (position === mapPanel) return;
 
  const active = document.activeElement;
  const restoreFocus = mapPanel.contains(active);
- if (mobileLayout.matches) workspace.prepend(mapPanel);
+ if (mobileLayout.matches) filters.after(mapPanel);
  else workspace.append(mapPanel);
  if (restoreFocus) active.focus({preventScroll: true});
 }

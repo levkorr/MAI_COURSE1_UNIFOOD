@@ -94,14 +94,15 @@ try {
     assert.equal(await run('innerWidth'), width);
     assert.equal(await visible('#place-results'), true);
     assert.equal(await visible('#place-map'), true);
-    assert.equal(await run("document.querySelector('#workspace').firstElementChild.id"), 'place-map');
-    assert.equal(await run("document.querySelector('#place-map').getBoundingClientRect().bottom < document.querySelector('#place-results').getBoundingClientRect().top"), true);
+    assert.equal(await run("document.querySelector('.filters').nextElementSibling.id"), 'place-map');
+    assert.equal(await run("document.querySelector('.filters').getBoundingClientRect().bottom < document.querySelector('#place-map').getBoundingClientRect().top"), true);
+    assert.equal(await run("document.querySelector('#place-map').getBoundingClientRect().bottom < document.querySelector('#cards').getBoundingClientRect().top"), true);
     assert.equal(await noOverflow(), true);
     assert.equal(await run("document.querySelector('#cards').scrollHeight > document.querySelector('#cards').clientHeight"), true);
     assert.deepEqual(await filterRows(), expectedFilterRows);
     assert.equal(await run("['#university','#break','#time','.filters button','.place-title','.heart','.locate-place'].every(s => document.querySelector(s).offsetHeight >= 44)"), true);
     assert.equal(await run("document.querySelector('#place-map').offsetWidth === document.querySelector('#workspace').offsetWidth"), true);
-    console.log(width + 'px: map above list, touch targets and no horizontal overflow');
+    console.log(width + 'px: map between filters and list, touch targets and no horizontal overflow');
   }
   await viewport(375);
   await tap('.place-title');
@@ -154,7 +155,7 @@ try {
   const searchState = await run("['#university','#time'].map(id=>document.querySelector(id).value)");
   console.log('375px: detail, check-in, locate, zoom, university, past-time warning, save and cancel today');
   await viewport(1280);
-  await until(() => run("document.querySelector('#workspace').firstElementChild.id === 'place-results'"), 'desktop reading order');
+  await until(() => run("document.querySelector('#workspace').lastElementChild.id === 'place-map'"), 'desktop reading order');
   assert.equal(await visible('#place-results'), true);
   assert.equal(await visible('#place-map'), true);
   assert.deepEqual(await filterRows(), expectedFilterRows);

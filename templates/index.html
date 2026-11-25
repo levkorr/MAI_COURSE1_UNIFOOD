@@ -3,7 +3,7 @@
 {% from 'ui-kit-check-in.html' import check_in %}
 <!DOCTYPE html>
 <html lang="ru">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/static/vendor/leaflet.css"><title>Между парами — места рядом с вузом</title>{% for sheet in ['colors', 'typography', 'icons', 'sizing', 'layout', 'surfaces', 'interaction', 'components', 'place-card', 'check-in'] %}<link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/' ~ sheet ~ '.css') }}">{% endfor %}<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=ui-kit-7"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/static/vendor/leaflet.css"><title>Между парами — места рядом с вузом</title>{% for sheet in ['colors', 'typography', 'icons', 'sizing', 'layout', 'surfaces', 'interaction', 'components', 'place-card', 'check-in'] %}<link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/' ~ sheet ~ '.css') }}">{% endfor %}<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=ui-kit-8"></head>
 <body class="kit-colors kit-type kit-sizing kit-surfaces kit-interaction kit-surface-page type-body">
 <header class="site-header">
   <div class="kit-container kit-cluster header-inner">
@@ -27,4 +27,4 @@
 <template id="place-card-template">{{ place_card() }}</template>
 {{ check_in() }}
 <dialog class="kit-surface-float" id="detail" aria-labelledby="detail-title"><button class="kit-action kit-surface-control kit-action--secondary dialog-close" id="close-dialog" aria-label="Закрыть">{{ icon("x", 24) }}</button><div id="detail-content"></div></dialog>
-<script id="university-data" type="application/json">{{ universities | tojson }}</script><script id="break-data" type="application/json">{{ breaks | tojson }}</script><script src="/static/vendor/leaflet.js"></script><script src="{{ url_for('static', filename='app.js') }}?v=ui-kit-7"></script></body></html>
+<script id="university-data" type="application/json">{{ universities | tojson }}</script><script id="break-data" type="application/json">{{ breaks | tojson }}</script><script src="/static/vendor/leaflet.js"></script><script src="{{ url_for('static', filename='app.js') }}?v=ui-kit-8"></script></body></html>
