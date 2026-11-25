@@ -12,6 +12,43 @@ python -m venv .venv
 
 Откройте http://127.0.0.1:5051.
 
+## SQLite на постоянном диске
+
+Для одного экземпляра Flask задайте `REPORT_DB` абсолютным путём к файлу на постоянном томе. При первом развёртывании создайте пустую базу в уже существующем каталоге. Команда инициализации отказывается перезаписывать файл.
+
+```powershell
+$env:REPORT_DB = 'D:\app-data\reports.sqlite3'
+.venv\Scripts\python -m database init $env:REPORT_DB
+.venv\Scripts\python app.py
+```
+
+Если `REPORT_DB` задан, Flask требует существующий файл, доступный для записи. Без переменной локальный запуск использует `reports.sqlite3` рядом с `app.py`.
+
+При переносе остановите прежний экземпляр, чтобы он завершил все записи. Укажите путь к прежней базе и выполните копирование в новый файл через SQLite Backup API. Для переноса используйте свободный путь на томе.
+
+```powershell
+$sourceDb = (Resolve-Path -LiteralPath '.\reports.sqlite3').Path
+$env:REPORT_DB = 'D:\app-data\reports.sqlite3'
+@'
+from contextlib import closing
+from pathlib import Path
+import sqlite3
+import sys
+
+source, destination = map(Path, sys.argv[1:])
+with closing(sqlite3.connect(source.as_uri() + '?mode=ro', uri=True)) as old:
+    destination.touch(exist_ok=False)
+    try:
+        with closing(sqlite3.connect(destination)) as new:
+            old.backup(new)
+    except sqlite3.Error:
+        destination.unlink()
+        raise
+'@ | .venv\Scripts\python - $sourceDb $env:REPORT_DB
+```
+
+После успешного копирования запустите Flask с заданным `REPORT_DB`. При последующих обновлениях используйте тот же том и путь. Сохраняйте прежний адрес сайта, чтобы браузер продолжал отправлять `mp-visitor` и открывать свой план.
+
 ## Загруженность
 
 Изначально 0%, статус «Нет оценок»: это отсутствие данных, а не подтверждённое отсутствие людей. Нажмите место на карте → «Я здесь» → 0–5, 5–10, 10–15 или 15–20 человек → «Поделиться».
