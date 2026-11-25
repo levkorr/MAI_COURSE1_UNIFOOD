@@ -2,14 +2,21 @@ from flask import Flask, jsonify, render_template, request, g
 from places_source import get_places
 from pathlib import Path
 from contextlib import contextmanager
-import sqlite3
+import os
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from universities import UNIVERSITIES
+from database import database, absolute_path
 
 app = Flask(__name__)
+configured_db = os.environ.get('REPORT_DB')
 app.config['REPORT_DB'] = str(Path(__file__).with_name('reports.sqlite3'))
+if configured_db is not None:
+    path = absolute_path(configured_db)
+    with database(path, existing=True):
+        pass
+    app.config['REPORT_DB'] = str(path)
 PEOPLE_RANGES = ('0-5', '5-10', '10-15', '15-20')
 REPORT_LIFETIME = 30 * 60
 PLAN_WINDOW = 5
@@ -44,20 +51,8 @@ def remember_visitor(response):
 
 @contextmanager
 def report_database():
-    db = sqlite3.connect(app.config['REPORT_DB'], timeout=10)
-    db.row_factory = sqlite3.Row
-    try:
-        with db:
-            db.execute('CREATE TABLE IF NOT EXISTS reports (place_id TEXT PRIMARY KEY, people_range TEXT NOT NULL, observed_at REAL NOT NULL)')
-            db.execute('CREATE TABLE IF NOT EXISTS visitor_observations (id INTEGER PRIMARY KEY, place_id TEXT NOT NULL, people_range TEXT NOT NULL, observed_at REAL NOT NULL)')
-            db.execute('CREATE INDEX IF NOT EXISTS observations_place_time ON visitor_observations(place_id, observed_at)')
-            db.execute('CREATE TABLE IF NOT EXISTS visit_plans (visitor_id TEXT NOT NULL, visit_date TEXT NOT NULL, place_id TEXT NOT NULL, slot TEXT NOT NULL, PRIMARY KEY (visitor_id, visit_date))')
-            if 'university' not in [row['name'] for row in db.execute('PRAGMA table_info(visit_plans)')]:
-                db.execute("ALTER TABLE visit_plans ADD COLUMN university TEXT NOT NULL DEFAULT 'mai'")
-            db.execute('INSERT INTO visitor_observations (place_id, people_range, observed_at) SELECT r.place_id, r.people_range, r.observed_at FROM reports r WHERE NOT EXISTS (SELECT 1 FROM visitor_observations o WHERE o.place_id=r.place_id AND o.people_range=r.people_range AND o.observed_at=r.observed_at)')
-            yield db
-    finally:
-        db.close()
+    with database(app.config['REPORT_DB'], existing=configured_db is not None) as db:
+        yield db
 
 
 def report_json(row):
