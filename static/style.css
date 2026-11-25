@@ -23,27 +23,27 @@ h1, h2, h3 { margin: 0; }
 .planner > .search { --grid-span: 3; min-block-size: var(--control-lg); }
 .search { display: inline-flex; align-items: center; justify-content: center; gap: var(--inline-gap); }
 
-#plan-day:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-12); margin-block-start: var(--space-16); }
-#plan-day .kit-select, .result-meta .kit-select { inline-size: auto; max-inline-size: 100%; }
-#plan-day-note { color: var(--color-warning-text); }
-#plan-status { margin: 0; }
-#plan-status:not(:empty) { margin-block-start: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--surface-radius-control); }
+.result-meta .kit-select { inline-size: auto; max-inline-size: 100%; }
+#plan-status, #plan-time-note { margin: 0; }
+#plan-status:not(:empty), #plan-time-note:not(:empty) { margin-block-start: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--surface-radius-control); }
 .workspace-switch { display: none; }
 
 .results { display: grid; align-content: start; gap: var(--space-16); }
 .results-heading, .result-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-8); }
 .results-heading h2 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--inline-gap); }
 .filters {
-  flex-wrap: nowrap;
+  display: grid;
   gap: var(--space-4);
-  overflow-x: auto;
-  padding: calc(var(--interaction-focus-width) + var(--interaction-focus-offset));
-  margin-inline: calc(-1 * (var(--interaction-focus-width) + var(--interaction-focus-offset)));
+}
+.filter-row { display: flex; gap: var(--space-4); }
+.filter-row--categories {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(var(--target-min), auto));
+  justify-content: start;
 }
 .filters .kit-action {
-  flex: none;
-  padding-inline: var(--space-8);
-  white-space: nowrap;
+  padding-inline: var(--space-4);
+  overflow-wrap: anywhere;
 }
 #cards { display: grid; gap: var(--space-12); }
 .map-selection > div { min-inline-size: 0; overflow-wrap: anywhere; }

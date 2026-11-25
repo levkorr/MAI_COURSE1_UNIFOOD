@@ -86,9 +86,7 @@ def active_observations(db):
 
 @app.get('/')
 def index():
-    today = datetime.now(MOSCOW).date()
-    return render_template('index.html', breaks=BREAKS, universities=UNIVERSITIES,
-                           today=today.isoformat(), tomorrow=(today + timedelta(days=1)).isoformat())
+    return render_template('index.html', breaks=BREAKS, universities=UNIVERSITIES)
 
 
 @app.get('/ui-kit')
@@ -159,7 +157,7 @@ def plan_visit():
         return jsonify(error='Выберите время из списка'), 400
     now = datetime.now(MOSCOW)
     if g.visit_date == now.date().isoformat() and slot_minutes(payload['time']) <= now.hour*60 + now.minute:
-        return jsonify(error='Это время уже прошло. Выберите «Завтра» или более позднее время.'), 400
+        return jsonify(error='Это время уже прошло. Записаться нельзя.'), 400
     try:
         data, _ = get_places(g.university)
     except RuntimeError as error:

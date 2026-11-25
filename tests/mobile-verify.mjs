@@ -76,6 +76,14 @@ try {
     element.dispatchEvent(new Event('change', {bubbles:true}));
   })()`);
   const noOverflow = () => run('document.documentElement.scrollWidth === innerWidth');
+  const filterRows = () => run(`[...document.querySelectorAll('.filter-row')].map(row => ({
+    labels: [...row.querySelectorAll('button')].map(button => button.dataset.category),
+    fits: row.scrollWidth === row.clientWidth,
+  }))`);
+  const expectedFilterRows = [
+    {labels: ['all', 'favorites'], fits: true},
+    {labels: ['shawarma', 'market', 'coffee', 'food'], fits: true},
+  ];
   await send('Runtime.enable');
   await send('Emulation.setTouchEmulationEnabled', {enabled: true});
   await viewport(320);
@@ -87,6 +95,7 @@ try {
     assert.equal(await visible('#place-results'), true);
     assert.equal(await visible('#place-map'), false);
     assert.equal(await noOverflow(), true);
+    assert.deepEqual(await filterRows(), expectedFilterRows);
     assert.equal(await run("['#show-map','#university','#break','#time','.filters button','.place-title','.heart','.locate-place'].every(s => document.querySelector(s).offsetHeight >= 44)"), true);
     await tap('#show-map');
     assert.equal(await visible('#place-map'), true);
@@ -126,35 +135,40 @@ try {
   await until(ready, 'MGSU results');
   await select('#time', "document.querySelector('#time').options[1].value");
   await until(ready, 'time results');
-  await select('#visit-date', "document.querySelector('#visit-date').options[1].value");
-  await until(ready, 'tomorrow results');
+  assert.equal(await run("document.querySelector('#visit-date') === null"), true);
+  assert.equal(await run("document.querySelector('#plan-time-note').textContent"), 'Это время уже прошло. Записаться нельзя.');
+  assert.equal(await visible('.card [data-plan]:enabled'), false);
+  await select('#break', "'1'");
+  await until(ready, 'later time results');
+  assert.equal(await run("document.querySelector('#plan-time-note').textContent"), '');
   await tap('.card [data-plan]:enabled');
   await until(() => run("document.querySelector('#plan-status').textContent.includes('План сохранён')"), 'save plan');
   const cancelSelector = await run(`(() => {
     const button = [...document.querySelectorAll('[data-plan]')].find(b => b.textContent === 'Отменить план');
     return '[data-plan="' + button.dataset.plan + '"]';
   })()`);
-  assert.equal(await run(`document.querySelector(${JSON.stringify(cancelSelector)}).closest('.kit-place-card').querySelector('[data-place-status]').textContent.startsWith('План на завтра')`), true);
+  assert.equal(await run(`document.querySelector(${JSON.stringify(cancelSelector)}).closest('.kit-place-card').querySelector('[data-place-status]').textContent.startsWith('План на сегодня')`), true);
   await tap(cancelSelector);
   await until(() => run("document.querySelector('#plan-status').textContent === 'План отменён.'"), 'cancel plan');
   await tap('[data-category=favorites]');
   assert.equal(await visible('#empty'), true);
-  const searchState = await run("['#university','#time','#visit-date'].map(id=>document.querySelector(id).value)");
+  const searchState = await run("['#university','#time'].map(id=>document.querySelector(id).value)");
   await tap('#show-map');
-  assert.deepEqual(await run("['#university','#time','#visit-date'].map(id=>document.querySelector(id).value)"), searchState);
+  assert.deepEqual(await run("['#university','#time'].map(id=>document.querySelector(id).value)"), searchState);
   await tap('[data-view=list]');
   assert.equal(await run("document.querySelector('[data-category=favorites]').getAttribute('aria-pressed')"), 'true');
   await tap('#show-map');
-  console.log('375px: detail, check-in, locate, zoom, university, time, tomorrow, save and cancel');
+  console.log('375px: detail, check-in, locate, zoom, university, past-time warning, save and cancel today');
   await viewport(1280);
   assert.equal(await visible('#workspace-switch'), false);
   assert.equal(await visible('#place-results'), true);
   assert.equal(await visible('#place-map'), true);
+  assert.deepEqual(await filterRows(), expectedFilterRows);
   assert.equal(await run("getComputedStyle(document.querySelector('#workspace')).gridTemplateColumns.split(' ').length"), 12);
   assert.equal(await run("getComputedStyle(document.querySelector('#place-map')).gridColumnStart"), 'span 8');
   assert.equal(await run("getComputedStyle(document.querySelector('#place-results')).gridColumnStart"), 'span 4');
   assert.equal(await run("document.querySelector('#place-results').getBoundingClientRect().right < document.querySelector('#place-map').getBoundingClientRect().left"), true);
-  assert.deepEqual(await run("['#university','#time','#visit-date'].map(id=>document.querySelector(id).value)"), searchState);
+  assert.deepEqual(await run("['#university','#time'].map(id=>document.querySelector(id).value)"), searchState);
   await tap('[data-category=all]');
   assert.equal(await visible('.card'), true);
   assert.deepEqual(errors, []);

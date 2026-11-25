@@ -33,16 +33,16 @@ const universities=JSON.parse($('#university-data').textContent);
 let university='mai', mapResizeObserver;
 let ORIGIN={lat:universities[university].campus[0],lon:universities[university].campus[1]};
 let viewMode='now', myPlan=null, loadedTime='now', loadedDate=null, canPlan=false, loadVersion=0;
-const dayLabel = () => $('#visit-date').selectedOptions[0].textContent.toLowerCase();
+const pastTimeMessage = 'Это время уже прошло. Записаться нельзя.';
 const planned = () => viewMode==='planned';
 const countLabel = p => planned()?`${p.planned_count} чел.`:p.report_count?`≈${p.people} чел.`:'Нет оценок';
 const actionLabel = p => planned()?(myPlan?.place_id===p.id && myPlan.slot===loadedTime?'Отменить план':canPlan?'Пойду сюда':'Время прошло'):'Я здесь';
 const actionDisabled = p => planned() && !canPlan && !(myPlan?.place_id===p.id && myPlan.slot===loadedTime)?'disabled':'';
 function choosePlace(id){if(planned())updatePlan(id);else openCheckIn(id);}
 async function updatePlan(id){
- if($('#time').value!==loadedTime || $('#visit-date').value!==loadedDate || $('#search').disabled){showStatus('#plan-status','Дождитесь загрузки выбранного времени.','amber');return;}
+ if($('#time').value!==loadedTime || $('#search').disabled){showStatus('#plan-status','Дождитесь загрузки выбранного времени.','amber');return;}
  const cancel=myPlan?.place_id===id && myPlan.slot===loadedTime;
- if(!cancel && !canPlan){showStatus('#plan-status','Это время уже прошло. Выберите «Завтра» или более позднее время.','amber');return;}
+ if(!cancel && !canPlan){showStatus('#plan-status',pastTimeMessage,'amber');return;}
  document.querySelectorAll('.check-in-trigger, #detail-check-in, .kit-place-card__plan').forEach(b=>b.disabled=true);
  try{
   const response=await fetch('/api/plans?university='+university+'&date='+loadedDate,{method:cancel?'DELETE':'POST',headers:{'Content-Type':'application/json'},...(cancel?{}:{body:JSON.stringify({place_id:id,time:loadedTime})})});
@@ -60,7 +60,7 @@ function mapPoint(p){
  return {point:[500+north/2.2,500+east/2.2],inside:Math.hypot(north,east)<=1000};
 }
 function reportSummary(p){
- if(planned())return myPlan?.place_id===p.id?`<span class="visitor-report type-small">Ваш план на ${dayLabel()}: ${escapeHTML(myPlan.slot)}</span>`:'';
+ if(planned())return myPlan?.place_id===p.id?`<span class="visitor-report type-small">Ваш план на сегодня: ${escapeHTML(myPlan.slot)}</span>`:'';
  if(!p.current_report || p.current_report.expires_at*1000 <= Date.now()) return '';
  const minutes=Math.max(0,Math.floor((Date.now()-p.current_report.observed_at*1000)/60000));
  return `<span class="visitor-report type-small">● Последняя оценка: ${escapeHTML(p.current_report.people_range.replace('-', '–'))} человек · ${minutes?minutes+' мин назад':'только что'}</span>`;
@@ -199,7 +199,7 @@ function renderMap(list){
   const icon=L.divIcon({className:`load-map-icon kit-feedback ${statusStyles[place.tone] || ""} ${place.id===selectedMapId?'is-selected':''}`,html:`<span>${place.icon}</span><b>${countLabel(place)}</b>`,iconSize:[76,44],iconAnchor:[38,22]});
   const marker=L.marker(mapPoint(place).point,{icon,title:`${place.name}: ${place.status} · ${countLabel(place)}`,zIndexOffset:place.id===selectedMapId?500:0}).addTo(mapMarkers);
   marker.bindTooltip(`${escapeHTML(place.name)} · ${countLabel(place)}`);
-  marker.on('click',()=>{selectedMapId=place.id;renderMap(visibleMapPlaces);const popup=L.popup({className:'check-in-popup',closeButton:true}).setLatLng(mapPoint(place).point).setContent(`<strong>${escapeHTML(place.name)}</strong><p>${planned()?`План на ${dayLabel()}, около ${loadedTime}`:'Сколько людей здесь сейчас?'}</p><button type="button" class="popup-check-in check-in-trigger kit-action kit-surface-control" ${actionDisabled(place)}>${actionLabel(place)}</button>`).openOn(schematicMap);popup.getElement().querySelector('.popup-check-in').onclick=()=>choosePlace(place.id);document.querySelectorAll('.card').forEach(card=>card.classList.toggle('map-selected',card.querySelector('[data-locate]')?.dataset.locate===place.id));});
+  marker.on('click',()=>{selectedMapId=place.id;renderMap(visibleMapPlaces);const popup=L.popup({className:'check-in-popup',closeButton:true}).setLatLng(mapPoint(place).point).setContent(`<strong>${escapeHTML(place.name)}</strong><p>${planned()?`План на сегодня, около ${loadedTime}`:'Сколько людей здесь сейчас?'}</p><button type="button" class="popup-check-in check-in-trigger kit-action kit-surface-control" ${actionDisabled(place)}>${actionLabel(place)}</button>`).openOn(schematicMap);popup.getElement().querySelector('.popup-check-in').onclick=()=>choosePlace(place.id);document.querySelectorAll('.card').forEach(card=>card.classList.toggle('map-selected',card.querySelector('[data-locate]')?.dataset.locate===place.id));});
   marker.on('dblclick',()=>details(place.id));
  });}
  if(!p){$('#map-selection').textContent='Нет заведений для выбранного фильтра';return;}
@@ -234,7 +234,7 @@ function save(id){saved.has(id)?saved.delete(id):saved.add(id);try{localStorage.
 function details(id){
  const p=places.find(p=>p.id===id);if(!p)return;
  const description=planned()
-  ? `${dayLabel()} около ${loadedTime} (±5 минут) сюда собираются ${p.planned_count} чел. Это планы пользователей, а не фактическое число посетителей.`
+  ? `сегодня около ${loadedTime} (±5 минут) сюда собираются ${p.planned_count} чел. Это планы пользователей, а не фактическое число посетителей.`
   : p.report_count?`Сейчас примерно ${p.people} чел. · оценок за 30 минут: ${p.report_count}`:'Пока нет свежих оценок посетителей. Число людей неизвестно.';
  $('#detail-content').innerHTML=`<div class="detail-icon">${p.icon}</div><h2 id="detail-title" class="detail-title type-h2">${escapeHTML(p.name)}</h2><p class="detail-text">${p.label} · ≈ ${p.walk} мин пешком от ${universities[university].name}</p>${badge(p)}<p class="detail-text">${description}</p><p class="detail-text">${escapeHTML(p.address === "Адрес не указан в OSM" ? "Адрес не указан" : p.address)}<br>${escapeHTML(p.hours)}</p><a class="source-link kit-link" href="https://yandex.ru/maps/?rtext=${ORIGIN.lat},${ORIGIN.lon}~${p.lat},${p.lon}&rtt=pd" target="_blank" rel="noopener noreferrer">Построить пеший маршрут ↗</a>${reportSummary(p)}<button class="check-in-primary kit-action kit-surface-control" id="detail-check-in" type="button" ${actionDisabled(p)}>${actionLabel(p)}</button>`;
  $('#detail').showModal();$('#detail-check-in').onclick=()=>{$('#detail').close();choosePlace(id);};locate(id);
@@ -259,7 +259,7 @@ function renderPlaceCard(place) {
  locateButton.dataset.locate = place.id;
  locateButton.setAttribute('aria-label', `Показать ${place.name} на карте`);
 
- if (savedPlan) status.textContent = `План на ${dayLabel()} · ${loadedTime}`;
+ if (savedPlan) status.textContent = `План на сегодня · ${loadedTime}`;
  else if (isPlanned) status.textContent = place.status;
  else if (place.report_count) status.textContent = `${place.status} · ≈ ${place.people} чел.`;
  else status.textContent = 'Пока нет оценок';
@@ -276,8 +276,6 @@ function renderPlaceCard(place) {
 }
 
 function render(){
- $('#plan-day').hidden=!planned();
- $('#plan-day-note').textContent=planned()&&!canPlan?'Это время уже прошло. Выберите «Завтра» или более позднее время.':'';
  const sort=$('#sort').value;
  const list=places.filter(p=>category==='all'||(category==='favorites'?saved.has(p.id):p.category===category)).sort((a,b)=>Number(saved.has(b.id))-Number(saved.has(a.id))||(sort==='walk'?a.walk-b.walk:planned()?a.planned_count-b.planned_count:a.load-b.load));
  $('#count').textContent=list.length;$('#fav-count').textContent=saved.size;$('#empty').hidden=!!list.length;
@@ -303,7 +301,7 @@ function render(){
  $('.schematic-legend').innerHTML=planned()?'<span>Число людей, планирующих прийти ±5 минут</span>':'<span><i class="kit-feedback" aria-hidden="true"></i>Нет оценок</span><span><i class="kit-feedback kit-feedback--success" aria-hidden="true"></i>Свободно</span><span><i class="kit-feedback kit-feedback--warning" aria-hidden="true"></i>Умеренно</span><span><i class="kit-feedback kit-feedback--failure" aria-hidden="true"></i>Загружено</span><small>По оценкам посетителей</small>';
 }
 async function load(){
- const version=++loadVersion, slot=$('#time').value, date=$('#visit-date').value, b=$('#search');
+ const version=++loadVersion, slot=$('#time').value, b=$('#search');
  b.disabled=true;b.setAttribute('aria-busy','true');$('#search-label').textContent='Ищем места…';$('#plan-status').textContent='';
  $('#results-error').hidden=true;$('#results-error').textContent='';
  if($('#detail').open)$('#detail').close();
@@ -311,19 +309,20 @@ async function load(){
  if(schematicMap)schematicMap.closePopup();
  document.querySelectorAll('.check-in-trigger').forEach(button=>button.disabled=true);
  try{
-  const response=await fetch('/api/places?time='+encodeURIComponent(slot)+'&university='+university+'&date='+date);const data=await response.json();
+  const response=await fetch('/api/places?time='+encodeURIComponent(slot)+'&university='+university);const data=await response.json();
   if(version!==loadVersion)return;
   if(!response.ok)throw Error(data.error||'Не удалось загрузить места');
   places=data.places;viewMode=data.mode;myPlan=data.my_plan;loadedTime=data.time;loadedDate=data.visit_date;canPlan=data.can_plan;
-  $('#result-label').textContent=planned()?`Планы на ${dayLabel()} · ${data.time} ±${data.window_minutes} мин`:'Загруженность сейчас';
+  $('#plan-time-note').textContent=planned()&&!canPlan?pastTimeMessage:'';
+  $('#result-label').textContent=planned()?`Планы на сегодня · ${data.time} ±${data.window_minutes} мин`:'Загруженность сейчас';
   $('#sort').options[0].textContent=planned()?'Сначала меньше планов':'Сначала свободные';
   render();
   const rated=places.filter(p=>p.report_count>0);
-  $('#tip').textContent=planned()?'Выбери «Пойду сюда», чтобы добавить себя. Учитываются планы на выбранный день в пределах ±5 минут. Новый выбор заменяет предыдущий план.':rated.length?`Есть свежие оценки для ${rated.length} мест. Примерное число людей — по сообщениям за последние 30 минут.`:'Пока нет свежих оценок. Нажми «Я здесь», чтобы сообщить, сколько людей сейчас в заведении.';
- }catch(error){if(version!==loadVersion)return;places=[];render();$('#empty').hidden=true;$('#results-error').hidden=false;$('#results-error').textContent=error.message||'Не удалось загрузить места. Повторите поиск.';}
+  $('#tip').textContent=planned()?'Учитываются планы на сегодня в пределах ±5 минут от выбранного времени. Новый план заменяет предыдущий.':rated.length?`Есть свежие оценки для ${rated.length} мест. Примерное число людей — по сообщениям за последние 30 минут.`:'Пока нет свежих оценок. Нажми «Я здесь», чтобы сообщить, сколько людей сейчас в заведении.';
+ }catch(error){if(version!==loadVersion)return;places=[];render();$('#empty').hidden=true;$('#plan-time-note').textContent='';$('#results-error').hidden=false;$('#results-error').textContent=error.message||'Не удалось загрузить места. Повторите поиск.';}
  finally{if(version===loadVersion){b.disabled=false;b.removeAttribute('aria-busy');$('#search-label').textContent='Найти место';}}
 }
-$('#break').onchange=()=>{setTimes();load();};$('#time').onchange=load;$('#visit-date').onchange=load;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
+$('#break').onchange=()=>{setTimes();load();};$('#time').onchange=load;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
 
 viewButtons.forEach(button => button.addEventListener('click', () => setWorkspaceView(button.dataset.view)));
 setInterval(()=>{if(!document.hidden && !document.querySelector("dialog[open]"))load();},60000);
