@@ -1,0 +1,51 @@
+.kit-check-in {
+  box-sizing: border-box;
+  inline-size: min(33rem, calc(100% - 2 * var(--page-gutter)));
+  max-block-size: calc(100% - 2 * var(--space-8));
+  padding: var(--panel-padding);
+  overflow: auto;
+  color: var(--color-text);
+}
+
+.kit-check-in__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-8);
+}
+
+.kit-check-in__header h2, .kit-check-in__header p { margin: 0; }
+.kit-check-in__place { color: var(--color-muted); }
+.kit-check-in__close { padding: 0; }
+.kit-check-in__form { display: grid; gap: var(--space-16); margin-block-start: var(--space-16); }
+.kit-check-in__form fieldset { min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+.kit-check-in__form legend { margin-block-end: var(--space-12); }
+
+.kit-check-in__options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+.kit-check-in__option {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-block-size: var(--control-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.kit-check-in__option input { margin: 0; accent-color: var(--color-selected); }
+.kit-check-in__option:has(:checked) { background: var(--color-action); border-color: var(--color-selected); }
+.kit-check-in__option:has(:focus-visible) { outline: var(--interaction-focus-width) solid var(--color-focus); outline-offset: var(--interaction-focus-offset); }
+.kit-check-in__option input:focus-visible { outline: none; }
+.kit-check-in__hint { margin: 0; color: var(--color-muted); }
+.kit-check-in__status { margin: 0; }
+.kit-check-in__status:not(:empty) { padding: var(--space-8) var(--space-12); border-radius: var(--surface-radius-control); }
+
+@media (max-width: 730px) {
+  .kit-check-in__options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

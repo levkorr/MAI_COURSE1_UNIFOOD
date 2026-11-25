@@ -91,6 +91,26 @@ def index():
                            today=today.isoformat(), tomorrow=(today + timedelta(days=1)).isoformat())
 
 
+@app.get('/ui-kit')
+def ui_kit():
+    return render_template('ui-kit.html')
+
+
+@app.get('/ui-kit/layout-example')
+def ui_kit_layout_example():
+    return render_template('ui-kit-layout.html')
+
+
+@app.get('/ui-kit/place-card-example')
+def ui_kit_place_card_example():
+    return render_template('ui-kit-place-card-example.html')
+
+
+@app.get('/ui-kit/check-in-example')
+def ui_kit_check_in_example():
+    return render_template('ui-kit-check-in-example.html')
+
+
 @app.get('/api/places')
 def places():
     slot = request.args.get('time', 'now')

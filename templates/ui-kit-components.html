@@ -1,0 +1,71 @@
+<section id="components" class="kit-interaction kit-surfaces kit-sizing kit-type">
+  <h2>Компоненты и состояния</h2>
+  <p>Базовый набор и состояния утверждены. <a class="kit-link" href="{{ url_for('static', filename='ui-kit/components.css') }}">Исходник стилей</a> · <a class="kit-link" href="#interaction">Правила взаимодействия</a></p>
+  <h3>Кнопки и ссылка</h3>
+  <p>Активные образцы показывают наведение, нажатие и фокус. Загрузка показана как фиксированное состояние. Выбор можно проверить на <a class="kit-link" href="#interaction-toggle">кнопке «Закрепить»</a>.</p>
+  <div class="kit-cluster">
+    <button type="button" class="kit-action kit-surface-control">Основная</button>
+    <button type="button" class="kit-action kit-surface-control kit-action--secondary">Вторичная</button>
+    <button type="button" class="kit-action kit-surface-control" disabled>Недоступна</button>
+    <button type="button" class="kit-action kit-surface-control" disabled aria-busy="true">Загрузка…</button>
+    <a class="kit-link kit-choice" href="#typography">Перейти к типографике</a>
+  </div>
+  <h3>Поля и выбор</h3>
+  <p>Ошибка показана заранее. Отправку и исправление можно проверить в <a class="kit-link" href="#interaction-form">интерактивной форме</a>.</p>
+  <div class="grid component-fields">
+    <div class="kit-field">
+      <label class="type-label" for="component-input">Название</label>
+      <input class="kit-input kit-surface-control" id="component-input" aria-describedby="component-help">
+      <span class="type-small" id="component-help">Введите короткое название.</span>
+    </div>
+    <div class="kit-field">
+      <label class="type-label" for="component-invalid">Обязательное поле</label>
+      <input class="kit-input kit-surface-control" id="component-invalid" required aria-invalid="true" aria-describedby="component-error">
+      <span class="type-small kit-interaction-error" id="component-error">Введите название.</span>
+    </div>
+    <div class="kit-field">
+      <label class="type-label" for="component-disabled">Недоступное поле</label>
+      <input class="kit-input kit-surface-control" id="component-disabled" disabled value="Недоступно">
+    </div>
+    <div class="kit-field">
+      <label class="type-label" for="component-select">Порядок</label>
+      <select class="kit-input kit-surface-control kit-select" id="component-select">
+        <option>По названию</option>
+        <option>По времени</option>
+        <option>По популярности</option>
+      </select>
+    </div>
+  </div>
+  <div class="kit-cluster component-choice-groups">
+    <fieldset>
+      <legend class="type-label">Независимый выбор</legend>
+      <label class="kit-choice"><input type="checkbox"> Показывать подробности</label>
+      <label class="kit-choice"><input type="checkbox" disabled> Недоступная опция</label>
+    </fieldset>
+    <fieldset>
+      <legend class="type-label">Один вариант</legend>
+      <label class="kit-choice"><input type="radio" name="component-view" checked> Список</label>
+      <label class="kit-choice"><input type="radio" name="component-view"> Карта</label>
+    </fieldset>
+  </div>
+  <h3>Метки и уведомления</h3>
+  <p>Метка кратко описывает состояние. Уведомление добавляет пояснение или следующий шаг. Ниже показаны статические образцы.</p>
+  <div class="kit-cluster">
+    <span class="kit-badge kit-feedback type-small">Черновик</span>
+    <span class="kit-badge kit-feedback kit-feedback--success type-small">Готово</span>
+    <span class="kit-badge kit-feedback kit-feedback--warning type-small">Требует внимания</span>
+    <span class="kit-badge kit-feedback kit-feedback--failure type-small">Ошибка</span>
+  </div>
+  <div class="grid component-fields">
+    <div class="kit-notice kit-feedback kit-feedback--success"><strong>Готово</strong><p>Изменения сохранены.</p></div>
+    <div class="kit-notice kit-feedback kit-feedback--warning"><strong>Проверьте данные</strong><p>Некоторые сведения требуют уточнения.</p></div>
+    <div class="kit-notice kit-feedback kit-feedback--failure"><strong>Возникла ошибка</strong><p>Проверьте обязательные поля и повторите.</p></div>
+  </div>
+  <h3>Карточка и разделитель</h3>
+  <div class="kit-card kit-surface-card">
+    <strong>Заголовок карточки</strong>
+    <p>Связанные сведения собраны в одном блоке.</p>
+    <hr class="kit-divider">
+    <p>Дополнительные сведения.</p>
+  </div>
+</section>

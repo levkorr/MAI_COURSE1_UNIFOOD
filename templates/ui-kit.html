@@ -1,0 +1,378 @@
+{% from 'ui-kit-icon.html' import icon %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Kit · Между парами</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/colors.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/reference.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/typography.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/icons.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/sizing.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/surfaces.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/interaction.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/layout.css') }}">
+  <script defer src="{{ url_for('static', filename='ui-kit/reference.js') }}"></script>
+</head>
+<body class="kit-colors">
+  <main>
+    <header>
+      <h1>UI Kit · Между парами</h1>
+      <nav aria-label="Разделы справочника">
+        <a href="#colors">Цвета</a>
+        <a href="#typography">Типографика</a>
+        <a href="#icons">Иконки</a>
+        <a href="#sizing">Размеры и отступы</a>
+        <a href="#layout">Компоновка</a>
+        <a href="#surfaces">Поверхности</a>
+        <a href="#interaction">Взаимодействие и доступность</a>
+        <a href="#components">Компоненты и состояния</a>
+        <a href="#place-card">Карточка места</a>
+        <a href="#check-in">Окно «Я здесь»</a>
+      </nav>
+    </header>
+    <section id="colors">
+      <h2>Цвета</h2>
+      <p>Палитра утверждена. Whipped Butter выделяет основное действие, Cookie Crumble используется для текста и выбранного состояния. Для фона страницы выбран более светлый кремовый. Шоколадный входит в нейтральную шкалу, поэтому отдельная вторичная палитра не нужна.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/colors.css') }}">Исходник токенов</a></p>
+      <h3>Цвета текущего интерфейса</h3>
+      <ul class="grid">
+        <li><div class="swatch" style="background:#d8ed8b"></div>Главная кнопка <code>#d8ed8b</code></li>
+        <li><div class="swatch" style="background:#2e503b"></div>Выбранный фильтр <code>#2e503b</code></li>
+        <li><div class="swatch" style="background:#31784b"></div>Ссылка <code>#31784b</code></li>
+        <li><div class="swatch" style="background:#f8f9f3"></div>Фон приложения <code>#f8f9f3</code></li>
+      </ul>
+      <h3>Палитры</h3>
+      <h4>Основное действие <code>primary</code></h4>
+      <ul class="grid">
+        <li data-token="--primary-50"><div class="swatch" style="background:var(--primary-50)"></div><code>--primary-50</code> <output></output></li>
+        <li data-token="--primary-100"><div class="swatch" style="background:var(--primary-100)"></div><code>--primary-100</code> <output></output></li>
+        <li data-token="--primary-200"><div class="swatch" style="background:var(--primary-200)"></div><code>--primary-200</code> <output></output></li>
+        <li data-token="--primary-300"><div class="swatch" style="background:var(--primary-300)"></div><code>--primary-300</code> <output></output> <small>Базовый</small></li>
+        <li data-token="--primary-400"><div class="swatch" style="background:var(--primary-400)"></div><code>--primary-400</code> <output></output></li>
+        <li data-token="--primary-500"><div class="swatch" style="background:var(--primary-500)"></div><code>--primary-500</code> <output></output></li>
+        <li data-token="--primary-600"><div class="swatch" style="background:var(--primary-600)"></div><code>--primary-600</code> <output></output></li>
+        <li data-token="--primary-700"><div class="swatch" style="background:var(--primary-700)"></div><code>--primary-700</code> <output></output></li>
+        <li data-token="--primary-800"><div class="swatch" style="background:var(--primary-800)"></div><code>--primary-800</code> <output></output></li>
+        <li data-token="--primary-900"><div class="swatch" style="background:var(--primary-900)"></div><code>--primary-900</code> <output></output></li>
+        <li data-token="--primary-950"><div class="swatch" style="background:var(--primary-950)"></div><code>--primary-950</code> <output></output></li>
+      </ul>
+      <h4>Текст и поверхности <code>neutral</code></h4>
+      <ul class="grid">
+        <li data-token="--neutral-50"><div class="swatch" style="background:var(--neutral-50)"></div><code>--neutral-50</code> <output></output></li>
+        <li data-token="--neutral-100"><div class="swatch" style="background:var(--neutral-100)"></div><code>--neutral-100</code> <output></output></li>
+        <li data-token="--neutral-200"><div class="swatch" style="background:var(--neutral-200)"></div><code>--neutral-200</code> <output></output></li>
+        <li data-token="--neutral-300"><div class="swatch" style="background:var(--neutral-300)"></div><code>--neutral-300</code> <output></output></li>
+        <li data-token="--neutral-400"><div class="swatch" style="background:var(--neutral-400)"></div><code>--neutral-400</code> <output></output></li>
+        <li data-token="--neutral-500"><div class="swatch" style="background:var(--neutral-500)"></div><code>--neutral-500</code> <output></output></li>
+        <li data-token="--neutral-600"><div class="swatch" style="background:var(--neutral-600)"></div><code>--neutral-600</code> <output></output></li>
+        <li data-token="--neutral-700"><div class="swatch" style="background:var(--neutral-700)"></div><code>--neutral-700</code> <output></output></li>
+        <li data-token="--neutral-800"><div class="swatch" style="background:var(--neutral-800)"></div><code>--neutral-800</code> <output></output></li>
+        <li data-token="--neutral-900"><div class="swatch" style="background:var(--neutral-900)"></div><code>--neutral-900</code> <output></output> <small>Базовый</small></li>
+        <li data-token="--neutral-950"><div class="swatch" style="background:var(--neutral-950)"></div><code>--neutral-950</code> <output></output></li>
+      </ul>
+      <h4>Успех <code>success</code></h4>
+      <ul class="grid">
+        <li data-token="--success-50"><div class="swatch" style="background:var(--success-50)"></div><code>--success-50</code> <output></output></li>
+        <li data-token="--success-100"><div class="swatch" style="background:var(--success-100)"></div><code>--success-100</code> <output></output></li>
+        <li data-token="--success-200"><div class="swatch" style="background:var(--success-200)"></div><code>--success-200</code> <output></output></li>
+        <li data-token="--success-300"><div class="swatch" style="background:var(--success-300)"></div><code>--success-300</code> <output></output></li>
+        <li data-token="--success-400"><div class="swatch" style="background:var(--success-400)"></div><code>--success-400</code> <output></output></li>
+        <li data-token="--success-500"><div class="swatch" style="background:var(--success-500)"></div><code>--success-500</code> <output></output></li>
+        <li data-token="--success-600"><div class="swatch" style="background:var(--success-600)"></div><code>--success-600</code> <output></output> <small>Базовый</small></li>
+        <li data-token="--success-700"><div class="swatch" style="background:var(--success-700)"></div><code>--success-700</code> <output></output></li>
+        <li data-token="--success-800"><div class="swatch" style="background:var(--success-800)"></div><code>--success-800</code> <output></output></li>
+        <li data-token="--success-900"><div class="swatch" style="background:var(--success-900)"></div><code>--success-900</code> <output></output></li>
+        <li data-token="--success-950"><div class="swatch" style="background:var(--success-950)"></div><code>--success-950</code> <output></output></li>
+      </ul>
+      <h4>Предупреждение <code>warning</code></h4>
+      <ul class="grid">
+        <li data-token="--warning-50"><div class="swatch" style="background:var(--warning-50)"></div><code>--warning-50</code> <output></output></li>
+        <li data-token="--warning-100"><div class="swatch" style="background:var(--warning-100)"></div><code>--warning-100</code> <output></output></li>
+        <li data-token="--warning-200"><div class="swatch" style="background:var(--warning-200)"></div><code>--warning-200</code> <output></output></li>
+        <li data-token="--warning-300"><div class="swatch" style="background:var(--warning-300)"></div><code>--warning-300</code> <output></output></li>
+        <li data-token="--warning-400"><div class="swatch" style="background:var(--warning-400)"></div><code>--warning-400</code> <output></output></li>
+        <li data-token="--warning-500"><div class="swatch" style="background:var(--warning-500)"></div><code>--warning-500</code> <output></output></li>
+        <li data-token="--warning-600"><div class="swatch" style="background:var(--warning-600)"></div><code>--warning-600</code> <output></output> <small>Базовый</small></li>
+        <li data-token="--warning-700"><div class="swatch" style="background:var(--warning-700)"></div><code>--warning-700</code> <output></output></li>
+        <li data-token="--warning-800"><div class="swatch" style="background:var(--warning-800)"></div><code>--warning-800</code> <output></output></li>
+        <li data-token="--warning-900"><div class="swatch" style="background:var(--warning-900)"></div><code>--warning-900</code> <output></output></li>
+        <li data-token="--warning-950"><div class="swatch" style="background:var(--warning-950)"></div><code>--warning-950</code> <output></output></li>
+      </ul>
+      <h4>Ошибка <code>failure</code></h4>
+      <ul class="grid">
+        <li data-token="--failure-50"><div class="swatch" style="background:var(--failure-50)"></div><code>--failure-50</code> <output></output></li>
+        <li data-token="--failure-100"><div class="swatch" style="background:var(--failure-100)"></div><code>--failure-100</code> <output></output></li>
+        <li data-token="--failure-200"><div class="swatch" style="background:var(--failure-200)"></div><code>--failure-200</code> <output></output></li>
+        <li data-token="--failure-300"><div class="swatch" style="background:var(--failure-300)"></div><code>--failure-300</code> <output></output></li>
+        <li data-token="--failure-400"><div class="swatch" style="background:var(--failure-400)"></div><code>--failure-400</code> <output></output></li>
+        <li data-token="--failure-500"><div class="swatch" style="background:var(--failure-500)"></div><code>--failure-500</code> <output></output></li>
+        <li data-token="--failure-600"><div class="swatch" style="background:var(--failure-600)"></div><code>--failure-600</code> <output></output> <small>Базовый</small></li>
+        <li data-token="--failure-700"><div class="swatch" style="background:var(--failure-700)"></div><code>--failure-700</code> <output></output></li>
+        <li data-token="--failure-800"><div class="swatch" style="background:var(--failure-800)"></div><code>--failure-800</code> <output></output></li>
+        <li data-token="--failure-900"><div class="swatch" style="background:var(--failure-900)"></div><code>--failure-900</code> <output></output></li>
+        <li data-token="--failure-950"><div class="swatch" style="background:var(--failure-950)"></div><code>--failure-950</code> <output></output></li>
+      </ul>
+      <h3>Роли</h3>
+      <ul class="grid">
+        <li data-token="--color-text"><div class="swatch" style="background:var(--color-text)"></div>Основной текст<code class="token">--color-text</code><output></output></li>
+        <li data-token="--color-muted"><div class="swatch" style="background:var(--color-muted)"></div>Второстепенный текст<code class="token">--color-muted</code><output></output></li>
+        <li data-token="--color-canvas"><div class="swatch" style="background:var(--color-canvas)"></div>Фон страницы<code class="token">--color-canvas</code><output></output></li>
+        <li data-token="--color-surface"><div class="swatch" style="background:var(--color-surface)"></div>Поверхность<code class="token">--color-surface</code><output></output></li>
+        <li data-token="--color-border"><div class="swatch" style="background:var(--color-border)"></div>Разделитель<code class="token">--color-border</code><output></output></li>
+        <li data-token="--color-control-border"><div class="swatch" style="background:var(--color-control-border)"></div>Граница поля<code class="token">--color-control-border</code><output></output></li>
+        <li data-token="--color-action"><div class="swatch" style="background:var(--color-action)"></div>Основное действие<code class="token">--color-action</code><output></output></li>
+        <li data-token="--color-action-hover"><div class="swatch" style="background:var(--color-action-hover)"></div>Наведение<code class="token">--color-action-hover</code><output></output></li>
+        <li data-token="--color-action-pressed"><div class="swatch" style="background:var(--color-action-pressed)"></div>Нажатие<code class="token">--color-action-pressed</code><output></output></li>
+        <li data-token="--color-selected"><div class="swatch" style="background:var(--color-selected)"></div>Выбранный элемент<code class="token">--color-selected</code><output></output></li>
+        <li data-token="--color-on-selected"><div class="swatch" style="background:var(--color-on-selected)"></div>Текст выбранного элемента<code class="token">--color-on-selected</code><output></output></li>
+        <li data-token="--color-disabled"><div class="swatch" style="background:var(--color-disabled)"></div>Недоступное действие<code class="token">--color-disabled</code><output></output></li>
+        <li data-token="--color-on-disabled"><div class="swatch" style="background:var(--color-on-disabled)"></div>Текст недоступного действия<code class="token">--color-on-disabled</code><output></output></li>
+        <li data-token="--color-focus"><div class="swatch" style="background:var(--color-focus)"></div>Контур фокуса<code class="token">--color-focus</code><output></output></li>
+        <li data-token="--color-success-bg"><div class="swatch" style="background:var(--color-success-bg)"></div>Фон успеха<code class="token">--color-success-bg</code><output></output></li>
+        <li data-token="--color-success-text"><div class="swatch" style="background:var(--color-success-text)"></div>Текст успеха<code class="token">--color-success-text</code><output></output></li>
+        <li data-token="--color-warning-bg"><div class="swatch" style="background:var(--color-warning-bg)"></div>Фон предупреждения<code class="token">--color-warning-bg</code><output></output></li>
+        <li data-token="--color-warning-text"><div class="swatch" style="background:var(--color-warning-text)"></div>Текст предупреждения<code class="token">--color-warning-text</code><output></output></li>
+        <li data-token="--color-failure-bg"><div class="swatch" style="background:var(--color-failure-bg)"></div>Фон ошибки<code class="token">--color-failure-bg</code><output></output></li>
+        <li data-token="--color-failure-text"><div class="swatch" style="background:var(--color-failure-text)"></div>Текст ошибки<code class="token">--color-failure-text</code><output></output></li>
+      </ul>
+      <h3>Контраст и состояния</h3>
+      <p>Ориентиры для пар ниже — 4,5:1 для обычного текста и 3:1 для значимых границ и контура фокуса. Три примера действия показывают фиксированные состояния. Статусы подписаны текстом.</p>
+      <ul class="grid pairs">
+        <li data-foreground="--color-text" data-background="--color-canvas"><div class="sample" style="color:var(--color-text);background:var(--color-canvas)">Основной текст</div><output></output></li>
+        <li data-foreground="--color-muted" data-background="--color-surface"><div class="sample" style="color:var(--color-muted);background:var(--color-surface)">Подпись</div><output></output></li>
+        <li data-foreground="--color-control-border" data-background="--color-surface"><div class="sample" style="color:var(--color-control-border);background:var(--color-surface)">Граница поля</div><output></output></li>
+        <li data-foreground="--color-focus" data-background="--color-surface"><div class="sample" style="color:var(--color-focus);background:var(--color-surface)">Контур фокуса</div><output></output></li>
+        <li data-foreground="--color-text" data-background="--color-action"><div class="sample" style="color:var(--color-text);background:var(--color-action)">Действие</div><output></output></li>
+        <li data-foreground="--color-text" data-background="--color-action-hover"><div class="sample" style="color:var(--color-text);background:var(--color-action-hover)">Наведение</div><output></output></li>
+        <li data-foreground="--color-text" data-background="--color-action-pressed"><div class="sample" style="color:var(--color-text);background:var(--color-action-pressed)">Нажатие</div><output></output></li>
+        <li data-foreground="--color-on-selected" data-background="--color-selected"><div class="sample" style="color:var(--color-on-selected);background:var(--color-selected)">Выбрано</div><output></output></li>
+        <li data-foreground="--color-on-disabled" data-background="--color-disabled"><div class="sample" style="color:var(--color-on-disabled);background:var(--color-disabled)">Недоступно</div><output></output></li>
+        <li data-foreground="--color-success-text" data-background="--color-success-bg"><div class="sample" style="color:var(--color-success-text);background:var(--color-success-bg)">Сохранено</div><output></output></li>
+        <li data-foreground="--color-warning-text" data-background="--color-warning-bg"><div class="sample" style="color:var(--color-warning-text);background:var(--color-warning-bg)">Требует внимания</div><output></output></li>
+        <li data-foreground="--color-failure-text" data-background="--color-failure-bg"><div class="sample" style="color:var(--color-failure-text);background:var(--color-failure-bg)">Ошибка</div><output></output></li>
+      </ul>
+    </section>
+    <section id="typography" class="kit-type">
+      <h2>Типографика</h2>
+      <p>Гарнитура и шкала утверждены. Manrope для кириллицы, латиницы и цифр. Google Fonts загружает прямые начертания 400–800. Резервные шрифты — Segoe UI, системный sans-serif. Акцент внутри текста набирается весом 600, сильное выделение — 700.</p>
+      <p>На ширине до 730 px включительно уменьшаются крупные заголовки и вводный абзац. Значения под образцами рассчитаны для текущей ширины окна. Уровень HTML-заголовка задаёт структуру страницы, класс определяет внешний вид.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/typography.css') }}">Исходник типографики</a></p>
+      <h3>Шкала и текстовые роли</h3>
+      <ul class="type-specimens">
+        <li><p class="type-h1" data-type-specimen>Заголовок страницы</p><code>.type-h1</code> <code>--type-size-h1</code><output></output></li>
+        <li><p class="type-h2" data-type-specimen>Заголовок раздела</p><code>.type-h2</code> <code>--type-size-h2</code><output></output></li>
+        <li><p class="type-h3" data-type-specimen>Подраздел</p><code>.type-h3</code> <code>--type-size-h3</code><output></output></li>
+        <li><p class="type-h4" data-type-specimen>Заголовок группы</p><code>.type-h4</code> <code>--type-size-h4</code><output></output></li>
+        <li><p class="type-h5" data-type-specimen>Младший заголовок</p><code>.type-h5</code> <code>--type-size-h5</code><output></output></li>
+        <li><p class="type-h6" data-type-specimen>Локальный заголовок</p><code>.type-h6</code> <code>--type-size-h6</code><output></output></li>
+        <li><p class="type-lead" data-type-specimen>Вводный абзац</p><code>.type-lead</code> <code>--type-size-lead</code><output></output></li>
+        <li><p class="type-body" data-type-specimen>Основной текст</p><code>.type-body</code> <code>--type-size-body</code><output></output></li>
+        <li><p class="type-label" data-type-specimen>Подпись поля</p><code>.type-label</code> <code>--type-size-label</code><output></output></li>
+        <li><p class="type-small" data-type-specimen>Пояснение</p><code>.type-small</code> <code>--type-size-small</code><output></output></li>
+      </ul>
+      <h3>Абзацы, списки и ссылка</h3>
+      <div class="type-prose type-body">
+        <p class="type-lead">Небольшой вводный абзац помогает быстро понять, о чём раздел.</p>
+        <p>Основной текст показывает переносы строк и интервалы между абзацами. В нём могут быть <em>акцент</em>, <strong>важная деталь</strong> и короткая команда <code>help</code>.</p>
+        <ul><li>Первый пункт списка</li><li>Второй пункт списка</li></ul>
+        <ol><li>Открыть раздел</li><li>Прочитать описание и примеры</li></ol>
+        <p><a href="#colors">Посмотреть цветовую палитру</a></p>
+        <p class="type-small">Вспомогательный текст под основным содержанием.</p>
+      </div>
+    </section>
+    <section id="icons">
+      <h2>Иконки</h2>
+      <p>Набор Lucide и размеры утверждены. Контурные Lucide 0.468.0 для навигации, действий и статусов. Цвет наследуется от текста, толщина контура — 2 единицы в сетке 24 × 24 и масштабируется вместе с иконкой.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/lucide.svg') }}">SVG-спрайт</a> · <a href="{{ url_for('static', filename='ui-kit/icons.css') }}">Стили</a> · <a href="{{ url_for('static', filename='ui-kit/lucide-LICENSE.txt') }}">Лицензия</a></p>
+      <h3>Набор</h3>
+      <ul class="grid icon-grid">
+        <li>{{ icon('search', 24) }} <span>Поиск</span><code class="token">search</code></li>
+        <li>{{ icon('map', 24) }} <span>Карта</span><code class="token">map</code></li>
+        <li>{{ icon('list', 24) }} <span>Список</span><code class="token">list</code></li>
+        <li>{{ icon('map-pin', 24) }} <span>Место на карте</span><code class="token">map-pin</code></li>
+        <li>{{ icon('locate-fixed', 24) }} <span>Показать место на карте</span><code class="token">locate-fixed</code></li>
+        <li>{{ icon('heart', 24) }} <span>Избранное</span><code class="token">heart</code></li>
+        <li>{{ icon('clock', 24) }} <span>Время</span><code class="token">clock</code></li>
+        <li>{{ icon('users', 24) }} <span>Посетители</span><code class="token">users</code></li>
+        <li>{{ icon('chevron-down', 24) }} <span>Раскрыть список</span><code class="token">chevron-down</code></li>
+        <li>{{ icon('x', 24) }} <span>Закрыть</span><code class="token">x</code></li>
+        <li>{{ icon('check', 24) }} <span>Успех или подтверждение</span><code class="token">check</code></li>
+        <li>{{ icon('triangle-alert', 24) }} <span>Предупреждение</span><code class="token">triangle-alert</code></li>
+        <li>{{ icon('circle-alert', 24) }} <span>Ошибка</span><code class="token">circle-alert</code></li>
+      </ul>
+      <h3>Размеры</h3>
+      <ul class="grid icon-grid">
+        <li>{{ icon('search', 16) }} <span>16 px · рядом с компактной подписью</span><code class="token">.kit-icon--16</code></li>
+        <li>{{ icon('search') }} <span>20 px · в большинстве элементов</span><code class="token">.kit-icon--20</code></li>
+        <li>{{ icon('search', 24) }} <span>24 px · отдельные действия</span><code class="token">.kit-icon--24</code></li>
+      </ul>
+      <h3>С текстом и без</h3>
+      <p>В примере иконка выровнена по центру текста с отступом 8 px. У кнопки без текста область нажатия 44 × 44 px, сам значок — 24 px. Декоративные SVG скрыты от скринридера, кнопка без текста получает доступное имя.</p>
+      <div class="icon-examples">
+        <button type="button">{{ icon('search') }} Найти</button>
+        <button type="button" class="icon-only" aria-label="Закрыть">{{ icon('x', 24) }}</button>
+      </div>
+      <p>Кнопки здесь показывают внешний вид и фокус при навигации клавишей Tab.</p>
+      <p>В шаблоне Jinja используйте <code>{% raw %}{% from 'ui-kit-icon.html' import icon %}{% endraw %}</code> и <code>{% raw %}{{ icon('search', 20) }}{% endraw %}</code>.</p>
+    </section>
+    <section id="sizing" class="kit-sizing">
+      <h2>Размеры и отступы</h2>
+      <p>Шкала, размеры элементов и адаптивные отступы утверждены. Отступы записаны в rem. Значения в px ниже соответствуют текущему размеру корневого шрифта.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/sizing.css') }}">Исходник размеров и отступов</a></p>
+      <h3>Шкала отступов</h3>
+      <ul class="grid sizing-grid">
+        <li data-size-token="--space-4"><span class="size-bar" style="inline-size:var(--space-4)"></span><code class="token">--space-4</code><output></output>Между подписью и пояснением</li>
+        <li data-size-token="--space-8"><span class="size-bar" style="inline-size:var(--space-8)"></span><code class="token">--space-8</code><output></output>Между иконкой и текстом</li>
+        <li data-size-token="--space-12"><span class="size-bar" style="inline-size:var(--space-12)"></span><code class="token">--space-12</code><output></output>Между соседними полями</li>
+        <li data-size-token="--space-16"><span class="size-bar" style="inline-size:var(--space-16)"></span><code class="token">--space-16</code><output></output>Внутренний отступ компактной карточки</li>
+        <li data-size-token="--space-20"><span class="size-bar" style="inline-size:var(--space-20)"></span><code class="token">--space-20</code><output></output>Внутренний отступ карточки</li>
+        <li data-size-token="--space-24"><span class="size-bar" style="inline-size:var(--space-24)"></span><code class="token">--space-24</code><output></output>Между группами</li>
+        <li data-size-token="--space-32"><span class="size-bar" style="inline-size:var(--space-32)"></span><code class="token">--space-32</code><output></output>Между подразделами</li>
+        <li data-size-token="--space-40"><span class="size-bar" style="inline-size:var(--space-40)"></span><code class="token">--space-40</code><output></output>Внутри крупного блока</li>
+        <li data-size-token="--space-48"><span class="size-bar" style="inline-size:var(--space-48)"></span><code class="token">--space-48</code><output></output>Между разделами</li>
+        <li data-size-token="--space-64"><span class="size-bar" style="inline-size:var(--space-64)"></span><code class="token">--space-64</code><output></output>Между крупными группами</li>
+      </ul>
+      <h3>Размеры по назначению</h3>
+      <p>При ширине до 730 px включительно уменьшаются поля страницы, отступы внутри панели и расстояние между разделами.</p>
+      <ul class="grid sizing-grid">
+        <li data-size-token="--inline-gap">Между иконкой и текстом<code class="token">--inline-gap</code><output></output></li>
+        <li data-size-token="--control-padding">Горизонтальный отступ контрола<code class="token">--control-padding</code><output></output></li>
+        <li data-size-token="--panel-padding">Внутренний отступ панели<code class="token">--panel-padding</code><output></output></li>
+        <li data-size-token="--section-gap">Между разделами<code class="token">--section-gap</code><output></output></li>
+        <li data-size-token="--page-gutter">Боковое поле страницы<code class="token">--page-gutter</code><output></output></li>
+        <li data-size-token="--control-sm">Компактный контрол<code class="token">--control-sm</code><output></output></li>
+        <li data-size-token="--control-md">Стандартный контрол<code class="token">--control-md</code><output></output></li>
+        <li data-size-token="--control-lg">Крупный контрол<code class="token">--control-lg</code><output></output></li>
+        <li data-size-token="--target-min">Минимальная область нажатия<code class="token">--target-min</code><output></output></li>
+        <li data-size-token="--content-max">Максимальная ширина содержимого<code class="token">--content-max</code><output></output></li>
+      </ul>
+      <h3>Высота и область нажатия</h3>
+      <p>У компактного контрола видимая высота 36 px, а область нажатия — минимум 44 px. У обычного и крупного контрола видимая высота составляет 44 и 48 px. Значки используют утверждённые размеры 16, 20 и 24 px соответственно.</p>
+      <div class="size-controls">
+        <button type="button" style="--sample-height:var(--control-sm)"><span>{{ icon('search', 16) }} Компактный</span></button>
+        <button type="button" style="--sample-height:var(--control-md)"><span>{{ icon('search', 20) }} Стандартный</span></button>
+        <button type="button" style="--sample-height:var(--control-lg)"><span>{{ icon('search', 24) }} Крупный</span></button>
+      </div>
+      <h3>Поля страницы и панели</h3>
+      <div class="size-page">
+        <div class="size-panel">
+          <div>Внутренний отступ панели</div>
+          <div>Расстояние между разделами</div>
+        </div>
+      </div>
+    </section>
+    <section id="layout">
+      <h2>Компоновка</h2>
+      <p>Сетка утверждена. При ширине до 730 px включительно она переключается на 4 колонки. Контейнер растягивается между боковыми полями до максимума 1152 px. Вертикальные интервалы между группами — 48 px на десктопе и 32 px на мобильном.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/layout.css') }}">Исходник компоновки</a></p>
+      <dl>
+        <dt><code>.kit-container</code></dt><dd>Центрирует содержимое с боковыми полями.</dd>
+        <dt><code>.kit-stack</code></dt><dd>Ставит группы друг под другом с адаптивным интервалом.</dd>
+        <dt><code>.kit-cluster</code></dt><dd>Выравнивает элементы в строку с зазором 12 px и переносит их при нехватке места.</dd>
+        <dt><code>.kit-grid</code></dt><dd>Располагает блоки по колонкам. Для дочернего блока задайте <code>--grid-span</code> и при необходимости <code>--grid-span-mobile</code>. По умолчанию блок занимает всю строку. Порядок чтения совпадает с порядком в HTML.</dd>
+      </dl>
+      <p>Оба окна показывают один и тот же пример. Блоки 1 и 2 на мобильном идут друг под другом, блоки 3 и 4 остаются в одной строке, группа 5–7 переносится. Узкое окно справочника прокручивает широкий пример внутри рамки.</p>
+      <figure class="layout-preview">
+        <figcaption>Десктоп · 1024 px · 12 колонок · поля 32 px · зазор 24 px</figcaption>
+        <div class="layout-preview-scroll" tabindex="0" role="region" aria-label="Прокрутка десктопного примера">
+          <iframe title="Компоновка на десктопе, 1024 px" width="1024" height="280" src="{{ url_for('ui_kit_layout_example') }}"></iframe>
+        </div>
+      </figure>
+      <figure class="layout-preview">
+        <figcaption>Мобильный · 375 px · 4 колонки · поля 16 px · зазор 16 px</figcaption>
+        <div class="layout-preview-scroll" tabindex="0" role="region" aria-label="Прокрутка мобильного примера">
+          <iframe title="Компоновка на мобильном, 375 px" width="375" height="340" src="{{ url_for('ui_kit_layout_example') }}"></iframe>
+        </div>
+      </figure>
+    </section>
+    <section id="surfaces" class="kit-surfaces kit-sizing">
+      <h2>Поверхности, границы и тени</h2>
+      <p>Поверхности утверждены. Фон страницы и карточки плоские. Тень выделяет всплывающую панель, когда она располагается поверх содержимого. Цвета основаны на утверждённой палитре.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/surfaces.css') }}">Исходник поверхностей</a></p>
+      <ul class="grid surface-gallery">
+        <li><div class="surface-specimen kit-surface-page">Фон страницы</div><code>.kit-surface-page</code></li>
+        <li><div class="surface-specimen kit-surface-card">Карточка</div><code>.kit-surface-card</code></li>
+        <li><div class="surface-specimen kit-surface-float kit-layer-float">Всплывающая панель</div><code>.kit-surface-float</code></li>
+        <li><div class="surface-specimen kit-surface-control">Граница поля</div><code>.kit-surface-control</code></li>
+      </ul>
+      <h3>Токены и назначение</h3>
+      <ul class="grid surface-tokens">
+        {% for token, label in [
+          ('page', 'Фон страницы'), ('card', 'Фон карточки'), ('float', 'Фон всплывающей панели'),
+          ('border', 'Граница карточки и панели'), ('control-border', 'Контрастная граница поля'),
+          ('border-width', 'Толщина сплошной границы'), ('radius-control', 'Радиус поля и кнопки'),
+          ('radius-card', 'Радиус карточки'), ('radius-float', 'Радиус всплывающей панели'),
+          ('shadow-flat', 'Фон и карточка'), ('shadow-float', 'Тень всплывающей панели'),
+          ('backdrop', 'Затемнение под модальным окном'), ('layer-float', 'Слой всплывающей панели')
+        ] %}
+          <li data-surface-token="--surface-{{ token }}">{{ label }}<code class="token">--surface-{{ token }}</code><output></output></li>
+        {% endfor %}
+      </ul>
+      <h3>Слои</h3>
+      <p>Всплывающая панель располагается над соседним содержимым через <code>.kit-layer-float</code> внутри его контекста наложения. Модальное окно использует нативный <code>dialog.showModal()</code> и верхний слой браузера.</p>
+      <button class="surface-trigger kit-surface-control" type="button" id="open-surface-dialog">Показать затемнение</button>
+      <dialog class="surface-dialog kit-surface-float" id="surface-dialog" aria-labelledby="surface-dialog-title">
+        <h3 id="surface-dialog-title">Модальное окно</h3>
+        <p>За окном виден фон с затемнением.</p>
+        <form method="dialog"><button class="surface-trigger kit-surface-control" autofocus>Закрыть</button></form>
+      </dialog>
+    </section>
+    <section id="interaction" class="kit-interaction kit-surfaces kit-sizing">
+      <h2>Взаимодействие и доступность</h2>
+      <p>Правила утверждены. Область нажатия — минимум 44 × 44 px. Клавиатурный фокус обозначается контуром 3 px с отступом 3 px. Смена состояний мгновенная, включая режим уменьшенного движения.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/interaction.css') }}">Исходник правил взаимодействия</a> · <a href="#colors">Цвета и контраст</a></p>
+      <h3>Фокус и состояния</h3>
+      <p>Tab и Shift+Tab перемещают фокус в порядке документа. Enter и Пробел активируют кнопку. Наведение и нажатие используют разные оттенки. Выбор сохраняется и обозначается текстом и <code>aria-pressed</code>. Недоступное действие пропускается при обходе клавишей Tab.</p>
+      <div class="interaction-actions">
+        <button class="kit-action kit-surface-control" type="button" id="interaction-toggle" aria-pressed="false">Закрепить <span aria-hidden="true">· Не выбрано</span></button>
+        <button class="kit-action kit-surface-control" type="button" disabled>Недоступно</button>
+      </div>
+      <p>В <a href="#surfaces">примере модального окна</a> Escape закрывает окно, а фокус возвращается к открывшей его кнопке.</p>
+      <h3>Проверка поля и сообщения</h3>
+      <p>Отправьте пустое поле, затем заполните его и повторите. Ошибка объясняет, что исправить, и получает связь с полем. После ошибки фокус ставится в поле. Успех объявляется без перемещения фокуса.</p>
+      <form id="interaction-form" novalidate>
+        <label for="interaction-name">Название (обязательно)</label>
+        <input id="interaction-name" class="kit-surface-control" required aria-describedby="interaction-hint">
+        <span id="interaction-hint">Введите короткое название.</span>
+        <span id="interaction-error" class="kit-interaction-error" hidden>Введите название перед проверкой.</span>
+        <div><button class="kit-action kit-surface-control" type="submit">Проверить поле</button></div>
+        <div id="interaction-status" class="kit-interaction-status" role="status"></div>
+      </form>
+    </section>
+    {% include 'ui-kit-components.html' %}
+    <section id="place-card">
+      <h2>Карточка места</h2>
+      <p>Черновик на согласовании. Три образца используют вымышленные данные. Сердце переключается, а названия и действия показывают назначение без перехода на сайт.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/place-card.css') }}">Исходник карточки</a></p>
+      <figure class="layout-preview">
+        <figcaption>Десктоп · окно 900 px</figcaption>
+        <div class="layout-preview-scroll" tabindex="0" role="region" aria-label="Прокрутка десктопного примера карточек">
+          <iframe title="Три состояния карточки на десктопе" width="900" height="660" src="{{ url_for('ui_kit_place_card_example') }}"></iframe>
+        </div>
+      </figure>
+      <figure class="layout-preview">
+        <figcaption>Мобильный · окно 375 px</figcaption>
+        <div class="layout-preview-scroll" tabindex="0" role="region" aria-label="Прокрутка мобильного примера карточек">
+          <iframe title="Три состояния карточки на мобильном" width="375" height="705" src="{{ url_for('ui_kit_place_card_example') }}"></iframe>
+        </div>
+      </figure>
+    </section>
+    <section id="check-in">
+      <h2>Окно «Я здесь»</h2>
+      <p>Черновик на согласовании. Откройте окно, выберите примерное число людей и отправьте демооценку.</p>
+      <p><a href="{{ url_for('static', filename='ui-kit/check-in.css') }}">Исходник окна</a></p>
+      {% for label, width in [('Десктоп', 900), ('Мобильный', 375)] %}
+        <figure class="layout-preview">
+          <figcaption>{{ label }} · окно {{ width }} px</figcaption>
+          <div class="layout-preview-scroll" tabindex="0" role="region" aria-label="Прокрутка примера «Я здесь»">
+            <iframe title="{{ label }} · пример окна «Я здесь»" width="{{ width }}" height="450" src="{{ url_for('ui_kit_check_in_example') }}"></iframe>
+          </div>
+        </figure>
+      {% endfor %}
+    </section>
+  </main>
+</body>
+</html>

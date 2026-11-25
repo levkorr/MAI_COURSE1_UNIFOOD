@@ -1,0 +1,46 @@
+{% from 'ui-kit-icon.html' import icon %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Карточка места · UI Kit</title>
+  {% for sheet in ['colors', 'typography', 'icons', 'sizing', 'layout', 'surfaces', 'interaction', 'components', 'place-card'] %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/' ~ sheet ~ '.css') }}">
+  {% endfor %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/place-card-example.css') }}">
+  <script defer src="{{ url_for('static', filename='ui-kit/place-card-example.js') }}"></script>
+</head>
+<body class="kit-colors kit-type kit-sizing kit-surfaces kit-interaction kit-surface-page type-body">
+  <main class="kit-container">
+    {% for state, name, meta, tone, status, favorite in [
+      ('Без оценок', 'Взлёт', 'Быстрое питание · 2 мин пешком', '', 'Пока нет оценок', false),
+      ('С оценкой загруженности', 'Кофе рядом', 'Кофейня · 4 мин пешком', 'kit-feedback--warning', 'Умеренно · ≈ 10 человек', false),
+      ('С сохранённым планом', 'Обед рядом', 'Кафе · 5 мин пешком', 'kit-feedback--success', 'План на завтра · 12:30', true)
+    ] %}
+      <section class="place-card-example">
+        <h2 class="type-label">{{ state }}</h2>
+        <article class="kit-card kit-surface-card kit-place-card" id="place-{{ loop.index }}">
+          <header class="kit-place-card__header">
+            <span class="kit-place-card__category">{{ icon('map-pin', 24) }}</span>
+            <div>
+              <h3 class="kit-place-card__title type-h4"><a class="kit-link" href="#details-{{ loop.index }}" data-card-message="Открыть детали места">{{ name }}</a></h3>
+              <p class="kit-place-card__meta type-small">{{ meta }}</p>
+            </div>
+            <button type="button" class="kit-place-card__favorite kit-action kit-action--secondary kit-surface-control"
+              aria-label="Избранное: {{ name }}" aria-pressed="{{ 'true' if favorite else 'false' }}" data-card-favorite>{{ icon('heart') }}</button>
+          </header>
+          <div class="kit-place-card__footer">
+            <span class="kit-badge kit-feedback type-small {{ tone }}">{{ status }}</span>
+            <a class="kit-place-card__map kit-link type-label" href="#map-{{ loop.index }}" data-card-message="Показать место на карте">{{ icon('map-pin', 16) }} На карте</a>
+          </div>
+          {% if favorite %}
+            <div><button type="button" class="kit-action kit-action--secondary kit-surface-control" data-card-message="Отменить сохранённый план">Отменить план</button></div>
+          {% endif %}
+        </article>
+      </section>
+    {% endfor %}
+    <p class="type-small" role="status" id="place-card-example-status"></p>
+  </main>
+</body>
+</html>

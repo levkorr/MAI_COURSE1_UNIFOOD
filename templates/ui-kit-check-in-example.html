@@ -1,0 +1,38 @@
+{% from 'ui-kit-icon.html' import icon %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Я здесь · UI Kit</title>
+  {% for sheet in ['colors', 'typography', 'icons', 'sizing', 'layout', 'surfaces', 'interaction', 'components', 'check-in'] %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/' ~ sheet ~ '.css') }}">
+  {% endfor %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/place-card-example.css') }}">
+  <script defer src="{{ url_for('static', filename='ui-kit/check-in-example.js') }}"></script>
+</head>
+<body class="kit-colors kit-type kit-sizing kit-surfaces kit-interaction kit-surface-page type-body">
+  <main class="kit-container">
+    <button id="open-check-in" class="kit-action kit-surface-control" type="button">Открыть «Я здесь»</button>
+    <dialog id="check-in-example" class="kit-check-in kit-surface-float" aria-labelledby="check-in-example-title">
+      <header class="kit-check-in__header">
+        <div><h2 id="check-in-example-title" class="type-h2">Я здесь</h2><p class="kit-check-in__place type-small">Магнит</p></div>
+        <button id="close-check-in" class="kit-check-in__close kit-action kit-action--secondary kit-surface-control" type="button" aria-label="Закрыть">{{ icon('x', 20) }}</button>
+      </header>
+      <form class="kit-check-in__form">
+        <fieldset aria-describedby="check-in-example-hint">
+          <legend class="type-h5">Сколько людей сейчас?</legend>
+          <div class="kit-check-in__options">
+            {% for range in ['0–5', '5–10', '10–15', '15–20'] %}
+              <label class="kit-check-in__option kit-surface-control type-label"><input type="radio" name="people" value="{{ range }}" required>{{ range }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <p id="check-in-example-hint" class="kit-check-in__hint type-small">Примерной оценки достаточно. Она будет видна 30 минут.</p>
+        <button class="kit-action kit-surface-control" type="submit" disabled>Отправить оценку</button>
+        <p class="kit-check-in__status kit-feedback kit-feedback--success type-small" role="status"></p>
+      </form>
+    </dialog>
+  </main>
+</body>
+</html>

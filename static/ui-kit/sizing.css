@@ -1,0 +1,31 @@
+.kit-sizing {
+  --space-4: 0.25rem;
+  --space-8: 0.5rem;
+  --space-12: 0.75rem;
+  --space-16: 1rem;
+  --space-20: 1.25rem;
+  --space-24: 1.5rem;
+  --space-32: 2rem;
+  --space-40: 2.5rem;
+  --space-48: 3rem;
+  --space-64: 4rem;
+
+  --inline-gap: var(--space-8);
+  --control-padding: var(--space-16);
+  --panel-padding: var(--space-24);
+  --section-gap: var(--space-48);
+  --page-gutter: var(--space-32);
+  --control-sm: 2.25rem;
+  --control-md: 2.75rem;
+  --control-lg: 3rem;
+  --target-min: 2.75rem;
+  --content-max: 72rem;
+}
+
+@media (max-width: 730px) {
+  .kit-sizing {
+    --panel-padding: var(--space-16);
+    --section-gap: var(--space-32);
+    --page-gutter: var(--space-16);
+  }
+}
