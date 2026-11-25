@@ -1,7 +1,7 @@
 const $ = s => document.querySelector(s);
 const escapeHTML = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let selectedMapId = null;
-let schematicMap, mapMarkers, resizeMap, visibleMapPlaces = [];
+let schematicMap, mapMarkers, visibleMapPlaces = [];
 const spriteUrl = $('#search use').getAttribute('href').split('#')[0];
 const icon = (name, size = 20) => `<svg class="kit-icon kit-icon--${size}" aria-hidden="true" focusable="false"><use href="${spriteUrl}#${name}"></use></svg>`;
 const statusStyles = {
@@ -19,15 +19,22 @@ function showStatus(selector, message, tone = 'neutral') {
  status.textContent = message;
 }
 const mobileLayout = matchMedia('(max-width: 730px)');
-const viewButtons = document.querySelectorAll('[data-view]');
+const workspace = $('#workspace');
+const mapPanel = $('#place-map');
 
-function setWorkspaceView(view) {
- const workspace = $('#workspace');
- if (view !== workspace.dataset.view && view === 'list') schematicMap?.closePopup();
- workspace.dataset.view = view;
- viewButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
- if (view === 'map') resizeMap?.();
+function syncWorkspaceOrder() {
+ const edge = mobileLayout.matches ? workspace.firstElementChild : workspace.lastElementChild;
+ if (edge === mapPanel) return;
+
+ const active = document.activeElement;
+ const restoreFocus = mapPanel.contains(active);
+ if (mobileLayout.matches) workspace.prepend(mapPanel);
+ else workspace.append(mapPanel);
+ if (restoreFocus) active.focus({preventScroll: true});
 }
+
+syncWorkspaceOrder();
+mobileLayout.addEventListener('change', syncWorkspaceOrder);
 
 const universities=JSON.parse($('#university-data').textContent);
 let university='mai', mapResizeObserver;
@@ -75,7 +82,8 @@ function openCheckIn(id) {
  const place = places.find(candidate => candidate.id === id);
  if (!place) return;
 
- checkInSession = {id, university, opener: document.activeElement, pending: false, saved: false};
+ const opener = document.activeElement;
+ checkInSession = {id, university, opener, fromMap: mapPanel.contains(opener), pending: false, saved: false};
  checkInForm.reset();
  checkInSubmit.textContent = 'Отправить оценку';
  checkInSubmit.disabled = true;
@@ -140,15 +148,13 @@ checkInDialog.addEventListener('close', () => {
  checkInSession = null;
  if (!session || session.opener?.isConnected) return;
 
- const mapVisible = !mobileLayout.matches || $('#workspace').dataset.view === 'map';
- const action = mapVisible && $('#map-selection .check-in-trigger');
+ const action = session.fromMap && $('#map-selection .check-in-trigger');
  const title = [...document.querySelectorAll('.place-title')].find(button => button.dataset.detail === session.id);
  (action || title || $('#search')).focus();
 });
 
 function initMap(){
  mapResizeObserver?.disconnect();if(schematicMap)schematicMap.remove();schematicMap=null;mapMarkers=null;
- resizeMap = null;
  $('#map').innerHTML = `<div class="schematic-head"><span>ОКРЕСТНОСТИ ${universities[university].name}</span><span class="radius-pill">↗ Радиус 1 км</span></div><div class="schematic-canvas" id="schematic-view" aria-label="Схема: используйте плюс и минус для масштаба, стрелки для перемещения"></div><div class="schematic-legend type-small"><span><i class="kit-feedback" aria-hidden="true"></i>Нет оценок</span><span><i class="kit-feedback kit-feedback--success" aria-hidden="true"></i>Свободно</span><span><i class="kit-feedback kit-feedback--warning" aria-hidden="true"></i>Умеренно</span><span><i class="kit-feedback kit-feedback--failure" aria-hidden="true"></i>Загружено</span><small>По оценкам посетителей</small></div><div id="map-selection" class="map-selection kit-card kit-surface-card"></div><div class="schematic-credit type-small"><span>© <a class="kit-link" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span></div>`;
  if(!window.L){$('#schematic-view').textContent='Не удалось загрузить карту. Обновите страницу.';return;}
  const bounds=L.latLngBounds([[0,0],[1000,1000]]);
@@ -166,7 +172,7 @@ function initMap(){
  schematicMap.zoomControl.setPosition('topright');
  schematicMap.zoomControl._zoomInButton.setAttribute('aria-label','Приблизить схему');
  schematicMap.zoomControl._zoomOutButton.setAttribute('aria-label','Отдалить схему');
- resizeMap = () => {
+ const resizeMap = () => {
   if (!mapView.clientWidth || !mapView.clientHeight) return;
   if (needsFit) {
    needsFit = false;
@@ -285,9 +291,8 @@ function render(){
  renderMap(list);
  document.querySelectorAll('[data-locate]').forEach(button => button.onclick = () => {
   if (mobileLayout.matches) {
-   setWorkspaceView('map');
-   $('#show-map').focus();
-   $('#workspace-switch').scrollIntoView({ block: 'nearest' });
+   mapPanel.focus({preventScroll: true});
+   mapPanel.scrollIntoView({block: 'start'});
   }
   locate(button.dataset.locate);
  });
@@ -326,5 +331,4 @@ async function load(){
 }
 $('#break').onchange=()=>{setTimes();load();};$('#time').onchange=load;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
 
-viewButtons.forEach(button => button.addEventListener('click', () => setWorkspaceView(button.dataset.view)));
 setInterval(()=>{if(!document.hidden && !document.querySelector("dialog[open]"))load();},60000);

@@ -26,7 +26,6 @@ h1, h2, h3 { margin: 0; }
 .result-meta .kit-select { inline-size: auto; max-inline-size: 100%; }
 #plan-status, #plan-time-note { margin: 0; }
 #plan-status:not(:empty), #plan-time-note:not(:empty) { margin-block-start: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--surface-radius-control); }
-.workspace-switch { display: none; }
 
 .results { display: flex; flex-direction: column; gap: var(--space-16); }
 .results-heading, .result-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-8); }
@@ -66,6 +65,10 @@ h1, h2, h3 { margin: 0; }
 .footer { padding-block-start: var(--space-16); border-block-start: var(--surface-border-width) solid var(--surface-border); }
 
 #place-map { align-self: start; }
+#place-map:focus-visible {
+  outline: var(--interaction-focus-width) solid var(--color-focus);
+  outline-offset: var(--interaction-focus-offset);
+}
 .map { overflow: hidden; }
 .schematic-canvas { inline-size: 100%; aspect-ratio: 1; background: var(--surface-page); }
 #map .leaflet-container { font-family: var(--type-family); }
@@ -141,8 +144,5 @@ h1, h2, h3 { margin: 0; }
 
 @media (max-width: 730px) {
   #cards { max-block-size: 60dvh; }
-  .workspace-switch { display: flex; }
-  .workspace-switch button { flex: 1; }
-  #workspace[data-view="list"] #place-map,
-  #workspace[data-view="map"] #place-results { display: none; }
+  #place-map { grid-row: 1; }
 }

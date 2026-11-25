@@ -93,30 +93,27 @@ try {
     await viewport(width);
     assert.equal(await run('innerWidth'), width);
     assert.equal(await visible('#place-results'), true);
-    assert.equal(await visible('#place-map'), false);
+    assert.equal(await visible('#place-map'), true);
+    assert.equal(await run("document.querySelector('#workspace').firstElementChild.id"), 'place-map');
+    assert.equal(await run("document.querySelector('#place-map').getBoundingClientRect().bottom < document.querySelector('#place-results').getBoundingClientRect().top"), true);
     assert.equal(await noOverflow(), true);
     assert.equal(await run("document.querySelector('#cards').scrollHeight > document.querySelector('#cards').clientHeight"), true);
     assert.deepEqual(await filterRows(), expectedFilterRows);
-    assert.equal(await run("['#show-map','#university','#break','#time','.filters button','.place-title','.heart','.locate-place'].every(s => document.querySelector(s).offsetHeight >= 44)"), true);
-    await tap('#show-map');
-    assert.equal(await visible('#place-map'), true);
+    assert.equal(await run("['#university','#break','#time','.filters button','.place-title','.heart','.locate-place'].every(s => document.querySelector(s).offsetHeight >= 44)"), true);
     assert.equal(await run("document.querySelector('#place-map').offsetWidth === document.querySelector('#workspace').offsetWidth"), true);
-    assert.equal(await visible('#place-results'), false);
-    assert.equal(await noOverflow(), true);
-    await tap('[data-view=list]');
-    console.log(width + 'px: list, map, touch targets and no horizontal overflow');
+    console.log(width + 'px: map above list, touch targets and no horizontal overflow');
   }
   await viewport(375);
   await tap('.place-title');
   assert.equal(await visible('#detail[open]'), true);
-  assert.equal(await visible('#place-map'), false);
   await tap('#detail-check-in');
   assert.equal(await visible('#check-in[open]'), true);
   await tap('.check-in-close');
   const selectedTitle = await run("document.querySelector('.place-title').textContent");
   await tap('[data-locate]');
   assert.equal(await visible('#place-map'), true);
-  assert.equal(await run("document.querySelector('#show-map').getAttribute('aria-pressed')"), 'true');
+  assert.equal(await run("document.activeElement.id"), 'place-map');
+  assert.equal(await run("Math.abs(document.querySelector('#place-map').getBoundingClientRect().top) < 2"), true);
   assert.equal(await run("document.querySelector('.map-place-detail').textContent"), selectedTitle);
   const markerPoint = await until(() => run(`(() => {
     const marker = document.querySelector('.load-map-icon.is-selected');
@@ -133,7 +130,6 @@ try {
   await tap('.leaflet-control-zoom-in');
   await until(() => run(`document.querySelector('.leaflet-image-layer').style.width !== ${JSON.stringify(scale)}`), 'map zoom');
   assert.equal(await run("document.querySelector('.map-place-detail').textContent"), selectedTitle);
-  await tap('[data-view=list]');
   await select('#university', "'mgsu'");
   await until(ready, 'MGSU results');
   await select('#time', "document.querySelector('#time').options[1].value");
@@ -156,14 +152,9 @@ try {
   await tap('[data-category=favorites]');
   assert.equal(await visible('#empty'), true);
   const searchState = await run("['#university','#time'].map(id=>document.querySelector(id).value)");
-  await tap('#show-map');
-  assert.deepEqual(await run("['#university','#time'].map(id=>document.querySelector(id).value)"), searchState);
-  await tap('[data-view=list]');
-  assert.equal(await run("document.querySelector('[data-category=favorites]').getAttribute('aria-pressed')"), 'true');
-  await tap('#show-map');
   console.log('375px: detail, check-in, locate, zoom, university, past-time warning, save and cancel today');
   await viewport(1280);
-  assert.equal(await visible('#workspace-switch'), false);
+  await until(() => run("document.querySelector('#workspace').firstElementChild.id === 'place-results'"), 'desktop reading order');
   assert.equal(await visible('#place-results'), true);
   assert.equal(await visible('#place-map'), true);
   assert.deepEqual(await filterRows(), expectedFilterRows);
@@ -172,6 +163,7 @@ try {
   assert.equal(await run("getComputedStyle(document.querySelector('#place-results')).gridColumnStart"), 'span 4');
   assert.equal(await run("document.querySelector('#place-results').getBoundingClientRect().right < document.querySelector('#place-map').getBoundingClientRect().left"), true);
   assert.deepEqual(await run("['#university','#time'].map(id=>document.querySelector(id).value)"), searchState);
+  assert.equal(await run("document.querySelector('[data-category=favorites]').getAttribute('aria-pressed')"), 'true');
   await tap('[data-category=all]');
   assert.equal(await visible('.card'), true);
   assert.equal(await run(`(() => {
