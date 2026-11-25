@@ -27,7 +27,7 @@ h1, h2, h3 { margin: 0; }
 #plan-day .kit-select, .result-meta .kit-select { inline-size: auto; max-inline-size: 100%; }
 #plan-day-note { color: var(--color-warning-text); }
 #plan-status { margin: 0; }
-#plan-status:not(:empty), #check-in-status:not(:empty) { margin-block-start: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--surface-radius-control); }
+#plan-status:not(:empty) { margin-block-start: var(--space-12); padding: var(--space-12) var(--space-16); border-radius: var(--surface-radius-control); }
 .workspace-switch { display: none; }
 
 .results { display: grid; align-content: start; gap: var(--space-16); }
@@ -46,24 +46,11 @@ h1, h2, h3 { margin: 0; }
   white-space: nowrap;
 }
 #cards { display: grid; gap: var(--space-12); }
-.card, .card-top > div, .map-selection > div { min-inline-size: 0; overflow-wrap: anywhere; }
+.map-selection > div { min-inline-size: 0; overflow-wrap: anywhere; }
 .card.map-selected { border-color: var(--surface-control-border); }
-.card-top { display: flex; align-items: start; gap: var(--space-12); }
-.place-icon { flex: none; align-self: center; }
-.place-title, .map-place-detail { text-align: start; }
-.place-meta, .wait, .load, .detail-text, .map-caption, .disclaimer, .schematic-credit { color: var(--color-muted); }
-.heart, .dialog-close { flex: none; display: grid; place-items: center; inline-size: var(--target-min); padding: 0; }
-.heart { margin-inline-start: auto; }
-.heart[aria-pressed="true"] .kit-icon { fill: currentColor; }
-.card-bottom {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-8);
-  margin-block-start: var(--space-12);
-  padding-block-start: var(--space-12);
-  border-block-start: var(--surface-border-width) solid var(--surface-border);
-}
+.map-place-detail { text-align: start; }
+.detail-text, .map-caption, .disclaimer, .schematic-credit { color: var(--color-muted); }
+.dialog-close { display: grid; place-items: center; inline-size: var(--target-min); padding: 0; }
 .visitor-report { display: block; margin-block-start: var(--space-8); color: var(--color-success-text); }
 .footer { padding-block-start: var(--space-16); border-block-start: var(--surface-border-width) solid var(--surface-border); }
 
@@ -133,7 +120,7 @@ h1, h2, h3 { margin: 0; }
 #map .leaflet-popup-content { margin: var(--space-16); padding-inline-end: var(--space-16); }
 #map .leaflet-tooltip { background: var(--surface-float); color: var(--color-text); box-shadow: var(--surface-shadow-float); }
 
-#detail, #check-in {
+#detail {
   inline-size: min(32rem, calc(100% - 2 * var(--page-gutter)));
   max-block-size: calc(100dvh - 2 * var(--page-gutter));
   padding: var(--panel-padding);
@@ -143,9 +130,6 @@ h1, h2, h3 { margin: 0; }
 }
 .dialog-close { margin-inline-start: auto; }
 .source-link { display: inline-flex; align-items: center; min-block-size: var(--target-min); }
-.people-options { display: flex; flex-wrap: wrap; gap: var(--space-8) var(--space-16); }
-.people-options small { display: inline; }
-#check-in-form fieldset { min-inline-size: 0; border: 0; padding: 0; margin: 0; }
 .check-in-primary { display: block; margin-block-start: var(--space-16); }
 
 @media (min-width: 731px) {

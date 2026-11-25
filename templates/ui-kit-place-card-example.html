@@ -1,4 +1,4 @@
-{% from 'ui-kit-icon.html' import icon %}
+{% from 'ui-kit-place-card.html' import place_card %}
 <!doctype html>
 <html lang="ru">
 <head>
@@ -20,24 +20,7 @@
     ] %}
       <section class="place-card-example">
         <h2 class="type-label">{{ state }}</h2>
-        <article class="kit-card kit-surface-card kit-place-card" id="place-{{ loop.index }}">
-          <header class="kit-place-card__header">
-            <span class="kit-place-card__category">{{ icon('map-pin', 24) }}</span>
-            <div>
-              <h3 class="kit-place-card__title type-h4"><a class="kit-link" href="#details-{{ loop.index }}" data-card-message="Открыть детали места">{{ name }}</a></h3>
-              <p class="kit-place-card__meta type-small">{{ meta }}</p>
-            </div>
-            <button type="button" class="kit-place-card__favorite kit-action kit-action--secondary kit-surface-control"
-              aria-label="Избранное: {{ name }}" aria-pressed="{{ 'true' if favorite else 'false' }}" data-card-favorite>{{ icon('heart') }}</button>
-          </header>
-          <div class="kit-place-card__footer">
-            <span class="kit-badge kit-feedback type-small {{ tone }}">{{ status }}</span>
-            <a class="kit-place-card__map kit-link type-label" href="#map-{{ loop.index }}" data-card-message="Показать место на карте">{{ icon('map-pin', 16) }} На карте</a>
-          </div>
-          {% if favorite %}
-            <div><button type="button" class="kit-action kit-action--secondary kit-surface-control" data-card-message="Отменить сохранённый план">Отменить план</button></div>
-          {% endif %}
-        </article>
+        {{ place_card(name, meta, status, tone, favorite, 'Отменить план' if favorite else '', favorite) }}
       </section>
     {% endfor %}
     <p class="type-small" role="status" id="place-card-example-status"></p>

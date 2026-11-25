@@ -34,6 +34,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
+  inline-size: 100%;
   min-block-size: var(--control-lg);
   background: var(--color-surface);
   cursor: pointer;

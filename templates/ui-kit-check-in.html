@@ -1,0 +1,27 @@
+{% from 'ui-kit-icon.html' import icon %}
+{% macro check_in(place='') %}
+<dialog id="check-in" class="kit-check-in kit-surface-float" aria-labelledby="check-in-title">
+  <header class="kit-check-in__header">
+    <div>
+      <h2 id="check-in-title" class="type-h2">Я здесь</h2>
+      <p id="check-in-name" class="kit-check-in__place type-small">{{ place }}</p>
+    </div>
+    <button class="check-in-close kit-check-in__close kit-action kit-action--secondary kit-surface-control" type="button" aria-label="Закрыть">{{ icon('x', 20) }}</button>
+  </header>
+  <form id="check-in-form" class="kit-check-in__form">
+    <fieldset aria-describedby="check-in-hint">
+      <legend class="type-h5">Сколько людей сейчас?</legend>
+      <div class="kit-check-in__options">
+        {% for range in ['0-5', '5-10', '10-15', '15-20'] %}
+          <label class="kit-choice kit-check-in__option kit-surface-control type-label">
+            <input type="radio" name="people_range" value="{{ range }}" required>{{ range | replace('-', '–') }}
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <p id="check-in-hint" class="kit-check-in__hint type-small">Примерной оценки достаточно. Она будет видна 30 минут.</p>
+    <button id="check-in-submit" class="kit-action kit-surface-control" type="submit" disabled>Отправить оценку</button>
+    <p id="check-in-status" class="kit-check-in__status kit-feedback type-small" role="status"></p>
+  </form>
+</dialog>
+{% endmacro %}

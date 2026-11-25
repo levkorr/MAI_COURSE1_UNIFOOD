@@ -45,7 +45,7 @@ async function updatePlan(id){
  if($('#time').value!==loadedTime || $('#visit-date').value!==loadedDate || $('#search').disabled){showStatus('#plan-status','Дождитесь загрузки выбранного времени.','amber');return;}
  const cancel=myPlan?.place_id===id && myPlan.slot===loadedTime;
  if(!cancel && !canPlan){showStatus('#plan-status','Это время уже прошло. Выберите «Завтра» или более позднее время.','amber');return;}
- document.querySelectorAll('.check-in-trigger, #detail-check-in').forEach(b=>b.disabled=true);
+ document.querySelectorAll('.check-in-trigger, #detail-check-in, .kit-place-card__plan').forEach(b=>b.disabled=true);
  try{
   const response=await fetch('/api/plans?university='+university+'&date='+loadedDate,{method:cancel?'DELETE':'POST',headers:{'Content-Type':'application/json'},...(cancel?{}:{body:JSON.stringify({place_id:id,time:loadedTime})})});
   const data=await response.json();if(!response.ok)throw Error(data.error||'Не удалось сохранить план');
@@ -54,7 +54,7 @@ async function updatePlan(id){
   await load();
   showStatus('#plan-status',cancel?'План отменён.':'План сохранён. Вы учтены среди тех, кто собирается прийти.','green');
  }catch(error){showStatus('#plan-status',error.message,'red');}
- finally{document.querySelectorAll('.check-in-trigger, #detail-check-in').forEach(b=>b.disabled=false);if(places.length)render();}
+ finally{if(places.length)render();}
 }
 function mapPoint(p){
  const north=(p.lat-ORIGIN.lat)*111195;
@@ -67,44 +67,90 @@ function reportSummary(p){
  const minutes=Math.max(0,Math.floor((Date.now()-p.current_report.observed_at*1000)/60000));
  return `<span class="visitor-report type-small">● Последняя оценка: ${escapeHTML(p.current_report.people_range.replace('-', '–'))} человек · ${minutes?minutes+' мин назад':'только что'}</span>`;
 }
-let checkInPlaceId=null;
-function openCheckIn(id){
- if(planned())return updatePlan(id);
- const p=places.find(p=>p.id===id);if(!p)return;
- checkInPlaceId=id;
- $('#check-in-form').reset();$('#check-in-submit').textContent='Поделиться';$('#check-in-status').textContent='';$('#check-in-submit').disabled=false;
- $('#check-in-name').textContent=p.name;
- $('#check-in').showModal();
+const checkInDialog = $('#check-in');
+const checkInForm = $('#check-in-form');
+const checkInSubmit = $('#check-in-submit');
+let checkInSession;
+
+function openCheckIn(id) {
+ if (planned()) return updatePlan(id);
+ const place = places.find(candidate => candidate.id === id);
+ if (!place) return;
+
+ checkInSession = {id, university, opener: document.activeElement, pending: false, saved: false};
+ checkInForm.reset();
+ checkInSubmit.textContent = 'Отправить оценку';
+ checkInSubmit.disabled = true;
+ checkInSubmit.removeAttribute('aria-busy');
+ showStatus('#check-in-status', '');
+ $('#check-in-name').textContent = place.name;
+ checkInDialog.showModal();
 }
-async function submitCheckIn(event){
+
+async function submitCheckIn(event) {
  event.preventDefault();
- const range=new FormData(event.currentTarget).get('people_range');
- const id=checkInPlaceId;
- $('#check-in-submit').disabled=true;$('#check-in-submit').setAttribute('aria-busy','true');showStatus('#check-in-status','Сохраняем…');
- try{
-  const response=await fetch('/api/check-ins?university='+university,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({place_id:id,people_range:range})});
-  const data=await response.json();if(!response.ok)throw Error(data.error||'Не удалось сохранить ответ');
-  const p=places.find(p=>p.id===id);if(p)Object.assign(p,data.place);
-  render();
-  showStatus('#check-in-status','Спасибо! Сообщение сохранено и будет видно 30 минут.','green');
-  $('#check-in-submit').textContent='Ответ сохранён';
- }catch(error){showStatus('#check-in-status',error.message,'red');$('#check-in-submit').disabled=false;}
- finally{$('#check-in-submit').removeAttribute('aria-busy');}
+ const session = checkInSession;
+ const range = new FormData(checkInForm).get('people_range');
+ if (!session || !range || session.pending || session.saved) return;
+
+ session.pending = true;
+ checkInSubmit.disabled = true;
+ checkInSubmit.setAttribute('aria-busy', 'true');
+ showStatus('#check-in-status', 'Сохраняем…');
+ try {
+  const response = await fetch('/api/check-ins?university=' + session.university, {
+   method: 'POST',
+   headers: {'Content-Type': 'application/json'},
+   body: JSON.stringify({place_id: session.id, people_range: range}),
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error || 'Не удалось сохранить ответ');
+  session.saved = true;
+  if (university === session.university && !planned()) {
+   const place = places.find(candidate => candidate.id === session.id);
+   if (place) {
+    Object.assign(place, data.place);
+    render();
+   }
+  }
+  if (checkInSession === session) {
+   showStatus('#check-in-status', 'Спасибо! Сообщение сохранено и будет видно 30 минут.', 'green');
+   checkInSubmit.textContent = 'Ответ сохранён';
+  }
+ } catch (error) {
+  if (checkInSession === session) {
+   showStatus('#check-in-status', error.message, 'red');
+   checkInSubmit.disabled = false;
+  }
+ } finally {
+  session.pending = false;
+  if (checkInSession === session) checkInSubmit.removeAttribute('aria-busy');
+ }
 }
+
+checkInDialog.querySelector('.check-in-close').onclick = () => checkInDialog.close();
+checkInDialog.onclick = event => {
+ if (event.target === checkInDialog) checkInDialog.close();
+};
+checkInForm.onchange = () => {
+ if (!checkInSession?.pending && !checkInSession?.saved) checkInSubmit.disabled = false;
+};
+checkInForm.onsubmit = submitCheckIn;
+checkInDialog.addEventListener('close', () => {
+ if (checkInDialog.open) return;
+ const session = checkInSession;
+ checkInSession = null;
+ if (!session || session.opener?.isConnected) return;
+
+ const mapVisible = !mobileLayout.matches || $('#workspace').dataset.view === 'map';
+ const action = mapVisible && $('#map-selection .check-in-trigger');
+ const title = [...document.querySelectorAll('.place-title')].find(button => button.dataset.detail === session.id);
+ (action || title || $('#search')).focus();
+});
+
 function initMap(){
  mapResizeObserver?.disconnect();if(schematicMap)schematicMap.remove();schematicMap=null;mapMarkers=null;
  resizeMap = null;
- $('#check-in')?.remove();
- const dialog=document.createElement('dialog');dialog.id='check-in';
- dialog.className='kit-surface-float';
- dialog.setAttribute('aria-labelledby','check-in-title');
- dialog.innerHTML=`<button class="check-in-close dialog-close kit-action kit-surface-control kit-action--secondary" type="button" aria-label="Закрыть отметку">${icon("x",24)}</button><h2 id="check-in-title" class="type-h2">Я здесь</h2><p id="check-in-name"></p><form id="check-in-form"><fieldset><legend>Сколько людей сейчас в заведении?</legend><div class="people-options">${['0-5','5-10','10-15','15-20'].map(range=>`<label class="kit-choice"><input type="radio" name="people_range" value="${range}" required><span>${range.replace('-','–')}<small>человек</small></span></label>`).join('')}</div></fieldset><p class="check-in-note">Примерной оценки достаточно. Оценка учитывается в загруженности 30 минут. Процент — средняя оценка числа людей относительно 20 посетителей.</p><button id="check-in-submit" class="check-in-primary kit-action kit-surface-control" type="submit">Поделиться</button><p id="check-in-status" role="status" aria-live="polite"></p></form>`;
- document.body.append(dialog);
- $('#check-in-status').classList.add('kit-feedback');
- dialog.querySelector('.check-in-close').onclick=()=>dialog.close();
- dialog.onclick=e=>{if(e.target===dialog)dialog.close();};
- $('#check-in-form').onsubmit=submitCheckIn;
-
  $('#map').innerHTML = `<div class="schematic-head"><span>ОКРЕСТНОСТИ ${universities[university].name}</span><span class="radius-pill">↗ Радиус 1 км</span></div><div class="schematic-canvas" id="schematic-view" aria-label="Схема: используйте плюс и минус для масштаба, стрелки для перемещения"></div><div class="schematic-legend type-small"><span><i class="kit-feedback" aria-hidden="true"></i>Нет оценок</span><span><i class="kit-feedback kit-feedback--success" aria-hidden="true"></i>Свободно</span><span><i class="kit-feedback kit-feedback--warning" aria-hidden="true"></i>Умеренно</span><span><i class="kit-feedback kit-feedback--failure" aria-hidden="true"></i>Загружено</span><small>По оценкам посетителей</small></div><div id="map-selection" class="map-selection kit-card kit-surface-card"></div><div class="schematic-credit type-small"><span>© <a class="kit-link" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span></div>`;
  if(!window.L){$('#schematic-view').textContent='Не удалось загрузить карту. Обновите страницу.';return;}
  const bounds=L.latLngBounds([[0,0],[1000,1000]]);
@@ -231,7 +277,7 @@ function renderMap(list){
   marker.on('dblclick',()=>details(place.id));
  });}
  if(!p){$('#map-selection').textContent='Нет заведений для выбранного фильтра';return;}
- $('#map-selection').innerHTML=`<div class="selection-icon">${p.icon}</div><div><button class="map-place-detail kit-action kit-action--secondary kit-surface-control">${escapeHTML(p.name)} ↗</button><span>≈ ${p.walk} мин пешком · ${p.distance} м по прямой</span>${reportSummary(p)}</div><button class="check-in-trigger kit-action kit-surface-control" type="button" ${actionDisabled(p)}>${actionLabel(p)}</button>`;
+ $('#map-selection').innerHTML=`<div class="selection-icon">${p.icon}</div><div><button class="map-place-detail kit-action kit-action--secondary kit-surface-control">${escapeHTML(p.name)}</button><span>≈ ${p.walk} мин пешком · ${p.distance} м по прямой</span>${reportSummary(p)}</div><button class="check-in-trigger kit-action kit-surface-control" type="button" ${actionDisabled(p)}>${actionLabel(p)}</button>`;
  $('#map-selection .map-place-detail').onclick=()=>details(p.id);$('#map-selection .check-in-trigger').onclick=()=>openCheckIn(p.id);
 }
 
@@ -267,13 +313,49 @@ function details(id){
  $('#detail-content').innerHTML=`<div class="detail-icon">${p.icon}</div><h2 id="detail-title" class="detail-title type-h2">${escapeHTML(p.name)}</h2><p class="detail-text">${p.label} · ≈ ${p.walk} мин пешком от ${universities[university].name}</p>${badge(p)}<p class="detail-text">${description}</p><p class="detail-text">${escapeHTML(p.address === "Адрес не указан в OSM" ? "Адрес не указан" : p.address)}<br>${escapeHTML(p.hours)}</p><a class="source-link kit-link" href="https://yandex.ru/maps/?rtext=${ORIGIN.lat},${ORIGIN.lon}~${p.lat},${p.lon}&rtt=pd" target="_blank" rel="noopener noreferrer">Построить пеший маршрут ↗</a>${reportSummary(p)}<button class="check-in-primary kit-action kit-surface-control" id="detail-check-in" type="button" ${actionDisabled(p)}>${actionLabel(p)}</button>`;
  $('#detail').showModal();$('#detail-check-in').onclick=()=>{$('#detail').close();choosePlace(id);};locate(id);
 }
+const placeCardTemplate = $('#place-card-template');
+function renderPlaceCard(place) {
+ const card = placeCardTemplate.content.firstElementChild.cloneNode(true);
+ const title = card.querySelector('[data-detail]');
+ const favorite = card.querySelector('[data-save]');
+ const locateButton = card.querySelector('[data-locate]');
+ const plan = card.querySelector('[data-plan]');
+ const status = card.querySelector('[data-place-status]');
+ const isPlanned = planned();
+ const savedPlan = isPlanned && myPlan?.place_id === place.id && myPlan.slot === loadedTime;
+
+ title.textContent = place.name;
+ title.dataset.detail = place.id;
+ card.querySelector('[data-place-meta]').textContent = `${place.label} · ${place.walk} мин пешком`;
+ favorite.dataset.save = place.id;
+ favorite.setAttribute('aria-label', `Избранное: ${place.name}`);
+ favorite.setAttribute('aria-pressed', String(saved.has(place.id)));
+ locateButton.dataset.locate = place.id;
+ locateButton.setAttribute('aria-label', `Показать ${place.name} на карте`);
+
+ if (savedPlan) status.textContent = `План на ${dayLabel()} · ${loadedTime}`;
+ else if (isPlanned) status.textContent = place.status;
+ else if (place.report_count) status.textContent = `${place.status} · ≈ ${place.people} чел.`;
+ else status.textContent = 'Пока нет оценок';
+
+ const tone = statusStyles[savedPlan ? 'green' : place.tone];
+ if (tone) status.classList.add(tone);
+
+ plan.dataset.plan = place.id;
+ plan.hidden = !isPlanned;
+ plan.disabled = !isPlanned || (!canPlan && !savedPlan);
+ if (isPlanned) plan.textContent = actionLabel(place);
+ plan.classList.toggle('kit-action--secondary', savedPlan);
+ return card;
+}
+
 function render(){
  $('#plan-day').hidden=!planned();
  $('#plan-day-note').textContent=planned()&&!canPlan?'Это время уже прошло. Выберите «Завтра» или более позднее время.':'';
  const sort=$('#sort').value;
  const list=places.filter(p=>category==='all'||(category==='favorites'?saved.has(p.id):p.category===category)).sort((a,b)=>Number(saved.has(b.id))-Number(saved.has(a.id))||(sort==='walk'?a.walk-b.walk:planned()?a.planned_count-b.planned_count:a.load-b.load));
  $('#count').textContent=list.length;$('#fav-count').textContent=saved.size;$('#empty').hidden=!!list.length;
- $('#cards').innerHTML=list.map(p=>`<article class="card kit-card kit-surface-card"><div class="card-top"><div class="place-icon">${p.icon}</div><div><button class="place-title kit-action kit-action--secondary kit-surface-control" data-detail="${p.id}">${escapeHTML(p.name)} ↗</button><div class="place-meta type-small">${p.label} · ≈ ${p.walk} мин пешком</div></div><button class="heart kit-action kit-action--secondary kit-surface-control" data-save="${p.id}" aria-label="Избранное: ${escapeHTML(p.name)}" aria-pressed="${saved.has(p.id)}">${icon('heart')}</button></div><div class="card-bottom">${badge(p)}<button class="locate-place kit-action kit-action--secondary kit-surface-control" data-locate="${p.id}" aria-label="Показать ${escapeHTML(p.name)} на схеме">На схеме ↗</button><span class="wait type-small">${planned()?`${dayLabel()} около ${loadedTime}`:p.report_count?`≈ ${p.people} чел. сейчас`:'Число людей неизвестно'}</span>${planned()?`<button class="check-in-trigger kit-action kit-surface-control" data-plan="${p.id}" ${actionDisabled(p)}>${actionLabel(p)}</button>`:`<span class="load type-small">${p.report_count?p.load+'%':'Нет оценок'}</span>`}</div>${reportSummary(p)}</article>`).join('');
+ $('#cards').replaceChildren(...list.map(renderPlaceCard));
  renderMap(list);
  document.querySelectorAll('[data-locate]').forEach(button => button.onclick = () => {
   if (mobileLayout.matches) {

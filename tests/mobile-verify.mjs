@@ -133,6 +133,7 @@ try {
     const button = [...document.querySelectorAll('[data-plan]')].find(b => b.textContent === 'Отменить план');
     return '[data-plan="' + button.dataset.plan + '"]';
   })()`);
+  assert.equal(await run(`document.querySelector(${JSON.stringify(cancelSelector)}).closest('.kit-place-card').querySelector('[data-place-status]').textContent.startsWith('План на завтра')`), true);
   await tap(cancelSelector);
   await until(() => run("document.querySelector('#plan-status').textContent === 'План отменён.'"), 'cancel plan');
   await tap('[data-category=favorites]');
@@ -155,6 +156,28 @@ try {
   assert.equal(await visible('.card'), true);
   assert.deepEqual(errors, []);
   console.log('1280px: both columns, retained search, favorites filter and no JavaScript exceptions');
+
+  for (const [width, columns] of [[1280, 4], [375, 2]]) {
+    await viewport(width);
+    await send('Page.navigate', {url: origin + '/?check-in-test=' + width});
+    await until(ready, 'initial cards for check-in');
+    assert.equal(await run("document.querySelector('#cards .kit-place-card').querySelectorAll('[data-place-status]').length"), 1);
+    const placeId = await run("document.querySelector('#cards .place-title').dataset.detail");
+    await tap('#cards .place-title');
+    await tap('#detail-check-in');
+    assert.equal(await visible('#check-in.kit-check-in[open]'), true);
+    assert.equal(await run("document.querySelector('#check-in-submit').disabled"), true);
+    assert.equal(await run("getComputedStyle(document.querySelector('.kit-check-in__options')).gridTemplateColumns.split(' ').length"), columns);
+    await tap('#check-in label:nth-child(2)');
+    assert.equal(await run("document.querySelector('#check-in input:checked').value"), '5-10');
+    assert.equal(await run("getComputedStyle(document.querySelector('#check-in input:checked')).clipPath"), 'inset(50%)');
+    await tap('#check-in-submit');
+    await until(() => run("document.querySelector('#check-in-status').textContent.includes('Сообщение сохранено')"), 'check-in saved');
+    await tap('.check-in-close');
+    assert.equal(await run(`[...document.querySelectorAll('#cards .kit-place-card')].find(card => card.querySelector('[data-detail]').dataset.detail === ${JSON.stringify(placeId)}).querySelector('[data-place-status]').textContent.includes('7.5')`), true);
+    assert.deepEqual(errors, []);
+    console.log(width + 'px: shared place card and real check-in submission');
+  }
 } finally {
   socket?.close();
   chrome.kill();

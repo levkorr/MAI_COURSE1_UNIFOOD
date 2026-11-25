@@ -1,0 +1,20 @@
+{% from 'ui-kit-icon.html' import icon %}
+{% macro place_card(name='', meta='', status='', tone='', favorite=false, plan='', saved_plan=false) %}
+<article class="card kit-card kit-surface-card kit-place-card">
+  <header class="kit-place-card__header">
+    <span class="kit-place-card__category">{{ icon('map-pin', 24) }}</span>
+    <div>
+      <h3 class="kit-place-card__title type-h4"><button type="button" class="kit-link place-title" data-detail>{{ name }}</button></h3>
+      <p class="kit-place-card__meta type-small" data-place-meta>{{ meta }}</p>
+    </div>
+    <button type="button" class="kit-place-card__favorite heart kit-action kit-action--secondary kit-surface-control"
+      aria-label="Избранное: {{ name }}" aria-pressed="{{ 'true' if favorite else 'false' }}" data-save>{{ icon('heart') }}</button>
+  </header>
+  <div class="kit-place-card__footer">
+    <span class="kit-badge kit-feedback type-small {{ tone }}" data-place-status>{{ status }}</span>
+    <button type="button" class="kit-place-card__map kit-link type-label locate-place" data-locate>{{ icon('map-pin', 16) }} На карте</button>
+  </div>
+  <button type="button" class="kit-place-card__plan kit-action kit-surface-control{% if saved_plan %} kit-action--secondary{% endif %}"
+    data-plan{% if not plan %} hidden{% endif %}>{{ plan }}</button>
+</article>
+{% endmacro %}
