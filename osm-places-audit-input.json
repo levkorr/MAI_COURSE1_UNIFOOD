@@ -1,0 +1,899 @@
+{
+  "queried_at": "2026-11-25T11:24:03.872Z",
+  "source": "OpenStreetMap MCP / osm_query_bbox",
+  "bbox": {
+    "minLat": 55.8045,
+    "minLon": 37.4875,
+    "maxLat": 55.8165,
+    "maxLon": 37.5092
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 523787628,
+      "lat": 55.8091793,
+      "lon": 37.5051775,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Шах Баку"
+      }
+    },
+    {
+      "type": "node",
+      "id": 675633542,
+      "lat": 55.8086798,
+      "lon": 37.4941534,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "cafe",
+        "check_date": "2026-10-27",
+        "check_date:opening_hours": "2026-10-27",
+        "level": "0",
+        "name": "СССР",
+        "opening_hours": "Mo-Su 11:00-23:00"
+      }
+    },
+    {
+      "type": "node",
+      "id": 825997423,
+      "lat": 55.810912,
+      "lon": 37.4990295,
+      "tags": {
+        "access": "private",
+        "amenity": "fast_food",
+        "check_date": "2026-09-29",
+        "drive_through": "no",
+        "fast_food": "cafeteria",
+        "name": "Взлет",
+        "opening_hours": "Mo-Fr 10:00-18:00",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "wheelchair": "limited"
+      }
+    },
+    {
+      "type": "node",
+      "id": 826366260,
+      "lat": 55.8128478,
+      "lon": 37.494602,
+      "tags": {
+        "amenity": "cafe",
+        "internet_access": "no",
+        "name": "Общежитие МАИ"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2004506894,
+      "lat": 55.8099943,
+      "lon": 37.5090412,
+      "tags": {
+        "amenity": "cafe",
+        "description": "Ведомственная столовая. С 12 до 15 часов проход только \"для своих\"",
+        "internet_access": "no",
+        "name": "Кафе-столовая",
+        "opening_hours": "Mo-Fr 10:30-12:00,15:00-17:00",
+        "smoking": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2110382440,
+      "lat": 55.8103468,
+      "lon": 37.5065686,
+      "tags": {
+        "amenity": "cafe",
+        "description": "Мини-продуктовый со столиками, где можно перекусить",
+        "name": "9barcoffee",
+        "opening_hours": "Mo-Fr 08:00-22:00",
+        "shop": "convenience"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3830469473,
+      "lat": 55.8075598,
+      "lon": 37.5053309,
+      "tags": {
+        "amenity": "fast_food",
+        "description": "Столовая",
+        "fast_food": "cafeteria",
+        "smoking": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3952575098,
+      "lat": 55.8083544,
+      "lon": 37.5002335,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "cafe",
+        "check_date": "2026-09-09",
+        "contact:phone": "+7 925 5977153",
+        "contact:telegram": "https://t.me/taamhummus",
+        "cuisine": "jewish",
+        "indoor_seating": "yes",
+        "level": "0",
+        "name": "TaAm hummus bar",
+        "opening_hours": "Mo-Su 10:00-23:00",
+        "outdoor_seating": "no",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4382665089,
+      "lat": 55.8060862,
+      "lon": 37.5063963,
+      "tags": {
+        "addr:floor": "1",
+        "addr:housenumber": "77 к4",
+        "addr:street": "Ленинградский проспект",
+        "amenity": "restaurant",
+        "check_date": "2025-09-20",
+        "diet:vegetarian": "no",
+        "level": "0",
+        "name": "Котлета",
+        "opening_hours": "Mo-Su 11:00-24:00",
+        "phone": "+7 499 6789777",
+        "website": "http://kotletabar.ru/"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5143746663,
+      "lat": 55.809256,
+      "lon": 37.4969829,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "cafe",
+        "check_date": "2026-09-09",
+        "contact:facebook": "https://www.facebook.com/huancoff",
+        "cuisine": "coffee_shop",
+        "indoor_seating": "yes",
+        "level": "0",
+        "name": "Хуан кофеман",
+        "opening_hours": "Mo-Fr 08:00-20:00; Sa,Su 09:00-19:00",
+        "outdoor_seating": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5890518234,
+      "lat": 55.8063804,
+      "lon": 37.5055658,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "fast_food",
+        "brand": "Додо Пицца",
+        "brand:en": "Dodo Pizza",
+        "brand:ru": "Додо Пицца",
+        "brand:wikidata": "Q61949318",
+        "brand:wikipedia": "ru:Додо Пицца",
+        "check_date": "2026-09-09",
+        "contact:email": "feedback@dodopizza.com",
+        "contact:facebook": "https://www.facebook.com/dodopizza/",
+        "contact:instagram": "https://www.instagram.com/dodopizza",
+        "contact:phone": "+7 800 3020060",
+        "contact:vk": "dodo",
+        "contact:website": "https://dodopizza.ru",
+        "cuisine": "pizza",
+        "delivery": "yes",
+        "diet:vegetarian": "yes",
+        "level": "0",
+        "name": "Додо Пицца",
+        "name:en": "Dodo Pizza",
+        "name:ru": "Додо Пицца",
+        "opening_hours": "Mo-Fr 10:00-22:00; Sa-Su 11:00-22:00",
+        "takeaway": "yes",
+        "website": "https://dodopizza.ru",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5963354853,
+      "lat": 55.8126576,
+      "lon": 37.4880554,
+      "tags": {
+        "amenity": "cafe",
+        "cuisine": "coffee_shop",
+        "level": "3",
+        "name": "Экспрессо",
+        "opening_hours": "Mo-Fr 07:00-23:00; Sa, Su 08:00-22:00",
+        "payment:cash": "yes",
+        "payment:debit_cards": "yes",
+        "power_supply": "yes",
+        "self_service": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6169973667,
+      "lat": 55.8066549,
+      "lon": 37.5045297,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "fast_food",
+        "check_date": "2025-09-20",
+        "fast_food": "cafeteria",
+        "level": "0",
+        "name": "Столовая на Соколе"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6189885778,
+      "lat": 55.8073997,
+      "lon": 37.4958417,
+      "tags": {
+        "amenity": "cafe",
+        "contact:phone": "+7 499 1582470",
+        "contact:website": "http://www.cafe-pro.ru/",
+        "name": "ProCafe"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6222902881,
+      "lat": 55.8065327,
+      "lon": 37.5051787,
+      "tags": {
+        "amenity": "cafe",
+        "cuisine": "coffee_shop",
+        "name": "Zёrna fix"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6535852224,
+      "lat": 55.8082182,
+      "lon": 37.5009969,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "cafe",
+        "check_date": "2026-10-30",
+        "check_date:opening_hours": "2026-10-30",
+        "contact:instagram": "https://www.instagram.com/yaskofe/",
+        "cuisine": "coffee_shop",
+        "indoor_seating": "yes",
+        "level": "0",
+        "name": "YaSkofe",
+        "opening_hours": "Mo-Sa 08:00-20:00; Su 10:00-20:00",
+        "outdoor_seating": "no",
+        "smoking": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6801999752,
+      "lat": 55.8081384,
+      "lon": 37.4971654,
+      "tags": {
+        "amenity": "cafe",
+        "contact:website": "https://morelososya.ru/",
+        "cuisine": "sushi",
+        "delivery": "yes",
+        "name": "Море лосося",
+        "opening_hours": "Mo-Th 11:00-23:00; Fr-Su 11:00-24:00"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7034604118,
+      "lat": 55.8109512,
+      "lon": 37.503614,
+      "tags": {
+        "amenity": "fast_food",
+        "fast_food": "cafeteria"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7034604121,
+      "lat": 55.8096898,
+      "lon": 37.4987351,
+      "tags": {
+        "access": "private",
+        "amenity": "fast_food",
+        "brand": "Теремок",
+        "brand:en": "Teremok",
+        "brand:ru": "Теремок",
+        "brand:wikidata": "Q4455593",
+        "brand:wikipedia": "ru:Теремок (сеть быстрого питания)",
+        "check_date": "2026-09-24",
+        "cuisine": "crepe;russian",
+        "name": "Теремок",
+        "name:en": "Teremok",
+        "name:ru": "Теремок",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7034604125,
+      "lat": 55.809722,
+      "lon": 37.5046316,
+      "tags": {
+        "amenity": "cafe"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7034604126,
+      "lat": 55.812614,
+      "lon": 37.5016749,
+      "tags": {
+        "amenity": "fast_food",
+        "fast_food": "cafeteria",
+        "internet_access": "wlan",
+        "name": "Космос",
+        "name:en": "Kosmos",
+        "opening_hours": "Mo-Sa 09:00-17:00"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7034604131,
+      "lat": 55.809933,
+      "lon": 37.4989555,
+      "tags": {
+        "access": "private",
+        "addr:floor": "2",
+        "amenity": "cafe",
+        "check_date": "2026-09-24",
+        "cuisine": "coffee_shop",
+        "level": "1",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7198100306,
+      "lat": 55.8045207,
+      "lon": 37.4896028,
+      "tags": {
+        "air_conditioning": "yes",
+        "amenity": "cafe",
+        "contact:vk": "club162292027",
+        "cuisine": "coffee_shop;international;russian;thai;vietnamese",
+        "level": "0",
+        "name": "Жираф",
+        "opening_hours": "Mo-Fr 08:00-20:00",
+        "outdoor_seating": "no",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "phone": "+7 495 6496586",
+        "smoking": "no",
+        "takeaway": "yes",
+        "toilets": "no",
+        "website": "https://giraffecafe.ru"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8305712318,
+      "lat": 55.8113421,
+      "lon": 37.497885,
+      "tags": {
+        "amenity": "cafe",
+        "cuisine": "coffee_shop",
+        "name": "Colorcoffee",
+        "name:en": "Colorcoffee"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8305751417,
+      "lat": 55.8110187,
+      "lon": 37.4977334,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "fast_food",
+        "check_date": "2026-09-09",
+        "cuisine": "kebab",
+        "level": "0",
+        "name": "Mr. Kebab",
+        "name:en": "Mr. Kebab",
+        "opening_hours": "Mo-Fr 08:00-20:30; Sa 08:00-19:30"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8356899518,
+      "lat": 55.8086046,
+      "lon": 37.4945299,
+      "tags": {
+        "amenity": "fast_food",
+        "check_date": "2025-09-20",
+        "cuisine": "kebab",
+        "name": "Донер",
+        "name:en": "Doner",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 9553047487,
+      "lat": 55.8164043,
+      "lon": 37.5008266,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Мир"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10119649042,
+      "lat": 55.8163235,
+      "lon": 37.4935797,
+      "tags": {
+        "addr:floor": "1",
+        "addr:housenumber": "4",
+        "addr:street": "3-я Радиаторская улица",
+        "amenity": "cafe",
+        "check_date": "2026-09-10",
+        "cuisine": "coffee_shop",
+        "level": "0",
+        "name": "Войка"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10763832322,
+      "lat": 55.8077103,
+      "lon": 37.5083582,
+      "tags": {
+        "amenity": "restaurant",
+        "contact:instagram": "https://www.instagram.com/reputation_bar/",
+        "contact:phone": "+7 495 229 36 60",
+        "contact:website": "https://www.reputation.rest/",
+        "name": "ReпутациЯ",
+        "opening_hours": "Mo-Th 12:00-24:00; Fr-Su 00:00-06:00,12:00-24:00"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11185663653,
+      "lat": 55.8056226,
+      "lon": 37.5082161,
+      "tags": {
+        "amenity": "cafe",
+        "brand": "Cofix",
+        "brand:en": "Cofix",
+        "brand:he": "קפויקס",
+        "brand:wikidata": "Q16132717",
+        "contact:email": "1343leningradsky77@stores.cofix.ru",
+        "contact:phone": "+7 800 3508418",
+        "contact:website": "https://cofix.global",
+        "cuisine": "coffee_shop",
+        "name": "Cofix",
+        "name:en": "Cofix",
+        "name:he": "קופיקס",
+        "opening_hours": "Mo-Fr 07:00-22:00; Sa-Su 08:00-22:00",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11638393313,
+      "lat": 55.8079853,
+      "lon": 37.4964546,
+      "tags": {
+        "amenity": "restaurant",
+        "contact:website": "https://lomi.rest/",
+        "cuisine": "georgian",
+        "name": "Ломи",
+        "opening_hours": "Su-Th 11:00-23:00; Fr,Sa 11:00-24:00"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12103997531,
+      "lat": 55.8095683,
+      "lon": 37.493821,
+      "tags": {
+        "amenity": "cafe",
+        "changing_table": "no",
+        "changing_table:fee": "no",
+        "cuisine": "coffee_shop",
+        "level": "0",
+        "name": "Кофе М",
+        "opening_hours": "Mo-Fr 08:00-20:00; Sa,Su 09:00-21:00",
+        "takeaway": "yes",
+        "toilets": "no",
+        "wheelchair": "limited"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12803115726,
+      "lat": 55.8057529,
+      "lon": 37.5022629,
+      "tags": {
+        "amenity": "cafe",
+        "contact:telegram": "https://t.me/ccortado",
+        "cuisine": "coffee_shop",
+        "name": "Cortado"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13961956005,
+      "lat": 55.8111475,
+      "lon": 37.497818,
+      "tags": {
+        "amenity": "fast_food",
+        "check_date": "2026-06-24",
+        "cuisine": "kebab"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13961956006,
+      "lat": 55.8115568,
+      "lon": 37.5000339,
+      "tags": {
+        "access": "private",
+        "amenity": "fast_food",
+        "check_date": "2026-09-25",
+        "fast_food": "cafeteria",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14167376744,
+      "lat": 55.8113052,
+      "lon": 37.4979583,
+      "tags": {
+        "addr:floor": "1",
+        "amenity": "fast_food",
+        "brand": "Cofix",
+        "brand:en": "Cofix",
+        "brand:he": "קפויקס",
+        "brand:wikidata": "Q16132717",
+        "brand:wikipedia": "en:Cofix",
+        "check_date": "2026-09-09",
+        "contact:email": "info@cofix.ru",
+        "contact:facebook": "https://www.facebook.com/cofixrussia",
+        "contact:instagram": "https://www.instagram.com/cofixrussia",
+        "contact:vk": "https://vk.com/cofixrussia",
+        "contact:website": "https://cofix.global",
+        "cuisine": "coffee_shop",
+        "delivery": "no",
+        "level": "0",
+        "name": "Cofix",
+        "name:en": "Cofix",
+        "name:he": "קופיקס",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14211199471,
+      "lat": 55.8110763,
+      "lon": 37.4977536,
+      "tags": {
+        "amenity": "cafe",
+        "check_date": "2026-09-24",
+        "cuisine": "coffee_shop",
+        "outdoor_seating": "no",
+        "takeaway": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14221960501,
+      "lat": 55.8074345,
+      "lon": 37.496435,
+      "tags": {
+        "addr:housenumber": "13",
+        "addr:street": "Волоколамское шоссе",
+        "amenity": "cafe",
+        "check_date": "2026-09-27",
+        "cuisine": "coffee_shop",
+        "name": "Даблби экспресс"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14221960601,
+      "lat": 55.8073827,
+      "lon": 37.4959404,
+      "tags": {
+        "addr:housenumber": "13",
+        "addr:street": "Волоколамское шоссе",
+        "amenity": "cafe",
+        "check_date": "2026-09-27",
+        "check_date:opening_hours": "2026-09-27",
+        "name": "Чайхана Хорезм",
+        "opening_hours": "Mo-Su 11:00-23:00"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14334696240,
+      "lat": 55.8069163,
+      "lon": 37.5032023,
+      "tags": {
+        "amenity": "restaurant",
+        "contact:website": "https://restoran-vrubel.com",
+        "name": "Врубель"
+      }
+    },
+    {
+      "type": "way",
+      "id": 68047486,
+      "lat": 55.8127188,
+      "lon": 37.4968088,
+      "tags": {
+        "addr:housenumber": "16",
+        "addr:street": "улица Константина Царёва",
+        "amenity": "fast_food",
+        "building": "yes",
+        "building:levels": "4",
+        "cuisine": "regional",
+        "fast_food": "cafeteria",
+        "loc_name": "Ледокол",
+        "name": "Столовая МАИ",
+        "opening_hours": "Mo-Sa 09:00-18:00",
+        "outdoor_seating": "no",
+        "phone": "+7 499 1584502;+7 499 1584773"
+      }
+    },
+    {
+      "type": "way",
+      "id": 585445407,
+      "lat": 55.8105284,
+      "lon": 37.5008297,
+      "tags": {
+        "amenity": "fast_food",
+        "building": "yes",
+        "check_date": "2026-06-24",
+        "fast_food": "cafeteria",
+        "name": "Ёлочка"
+      }
+    },
+    {
+      "type": "node",
+      "id": 674037564,
+      "lat": 55.8088028,
+      "lon": 37.493539,
+      "tags": {
+        "addr:floor": "1",
+        "addr:housenumber": "15/22",
+        "addr:postcode": "125080",
+        "addr:street": "Волоколамское шоссе",
+        "brand": "Магнолия",
+        "check_date": "2026-09-24",
+        "contact:email": "magnolia@tcfoods.ru",
+        "contact:website": "http://www.mgnl.ru",
+        "internet_access": "no",
+        "level": "0",
+        "name": "Магнолия",
+        "opening_hours": "24/7",
+        "operator": "Магнолия",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "shop": "supermarket",
+        "wheelchair": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 751874021,
+      "lat": 55.8066275,
+      "lon": 37.504675,
+      "tags": {
+        "name": "Гастроном",
+        "shop": "convenience",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2012083692,
+      "lat": 55.8102275,
+      "lon": 37.5066894,
+      "tags": {
+        "name": "МирРЭЛ",
+        "opening_hours": "Mo-Su 08:00-22:00",
+        "shop": "convenience"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2381083749,
+      "lat": 55.808826,
+      "lon": 37.4977041,
+      "tags": {
+        "addr:floor": "1",
+        "brand": "Магнолия",
+        "check_date": "2025-09-20",
+        "contact:email": "magnolia@tcfoods.ru",
+        "contact:website": "http://www.mgnl.ru",
+        "level": "0",
+        "name": "Магнолия",
+        "opening_hours": "24/7",
+        "shop": "convenience"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3046762213,
+      "lat": 55.8059109,
+      "lon": 37.507174,
+      "tags": {
+        "brand": "Дикси",
+        "brand:en": "Dixy",
+        "brand:ru": "Дикси",
+        "brand:wikidata": "Q4161561",
+        "brand:wikipedia": "ru:Дикси (сеть магазинов)",
+        "check_date": "2026-08-29",
+        "check_date:opening_hours": "2026-08-29",
+        "contact:email": "info@dixy.ru",
+        "contact:phone": "+7 800 1011001",
+        "contact:vk": "https://vk.com/dixyclub",
+        "contact:website": "https://dixy.ru",
+        "contact:youtube": "https://www.youtube.com/channel/UCfFxD9xhL67LxHvsDOp_rvg",
+        "name": "Дикси",
+        "opening_hours": "Mo-Su 08:00-23:00",
+        "shop": "supermarket"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4382194590,
+      "lat": 55.8053875,
+      "lon": 37.5091999,
+      "tags": {
+        "brand": "Магнит",
+        "brand:en": "Magnit",
+        "brand:ru": "Магнит",
+        "brand:wikidata": "Q940518",
+        "brand:wikipedia": "ru:Магнит (сеть магазинов)",
+        "contact:email": "info@magnit.ru",
+        "contact:phone": "+7 800 2009002",
+        "contact:twitter": "https://twitter.com/magnit_info",
+        "contact:website": "http://magnit-info.ru",
+        "name": "Магнит",
+        "name:en": "Magnit",
+        "name:ru": "Магнит",
+        "opening_hours": "24/7",
+        "operator": "АО \"Тандер\"",
+        "shop": "convenience"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4721175770,
+      "lat": 55.8103973,
+      "lon": 37.4906081,
+      "tags": {
+        "brand": "Верный",
+        "brand:wikidata": "Q110037370",
+        "check_date": "2026-06-24",
+        "contact:website": "http://www.verno-info.ru",
+        "name": "Верный",
+        "opening_hours": "Mo-Su,PH 08:00-23:00",
+        "shop": "supermarket"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4968280662,
+      "lat": 55.8096583,
+      "lon": 37.4933508,
+      "tags": {
+        "brand": "ВкусВилл",
+        "brand:wikidata": "Q57271676",
+        "check_date": "2026-09-24",
+        "contact:email": "info@izbenka.msk.ru",
+        "contact:instagram": "https://www.instagram.com/vkusvill_ru",
+        "contact:phone": "+7 495 663-86-02",
+        "contact:telegram": "https://telegram.me/vkusvillbot",
+        "contact:twitter": "https://twitter.com/we_are_vkusvill",
+        "contact:vk": "https://vk.com/vkusvill_ru",
+        "contact:website": "https://vkusvill.ru",
+        "level": "0",
+        "name": "ВкусВилл",
+        "opening_hours": "Mo-Su 09:00-22:00",
+        "shop": "convenience",
+        "toilets": "no",
+        "wheelchair": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5585887023,
+      "lat": 55.8100204,
+      "lon": 37.4922693,
+      "tags": {
+        "addr:housenumber": "16",
+        "addr:street": "Волоколамское шоссе",
+        "brand": "Магнит",
+        "brand:en": "Magnit",
+        "brand:ru": "Магнит",
+        "brand:wikidata": "Q940518",
+        "brand:wikipedia": "ru:Магнит (сеть магазинов)",
+        "check_date": "2026-06-24",
+        "contact:email": "info@magnit.ru",
+        "contact:facebook": "https://www.facebook.com/magnitretail",
+        "contact:ok": "https://ok.ru/magnitinfo",
+        "contact:phone": "+7 800 2009002",
+        "contact:twitter": "https://twitter.com/magnitretail",
+        "contact:vk": "https://vk.com/magnitretail",
+        "contact:website": "https://magnit.ru",
+        "contact:youtube": "https://www.youtube.com/channel/UCoWX1GhHlSJGwKpCEJitsoA",
+        "name": "Магнит",
+        "name:en": "Magnit",
+        "name:ru": "Магнит",
+        "opening_hours": "Mo-Su 09:00-23:00",
+        "operator": "АО \"Тандер\"",
+        "shop": "supermarket"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6674353636,
+      "lat": 55.8101709,
+      "lon": 37.4915434,
+      "tags": {
+        "brand": "Магнолия",
+        "check_date": "2026-06-24",
+        "contact:email": "magnolia@tcfoods.ru",
+        "contact:website": "http://www.mgnl.ru",
+        "name": "Магнолия",
+        "opening_hours": "24/7",
+        "shop": "supermarket"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6865158785,
+      "lat": 55.8160411,
+      "lon": 37.5049223,
+      "tags": {
+        "shop": "convenience"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12104073831,
+      "lat": 55.8083364,
+      "lon": 37.4891907,
+      "tags": {
+        "inscription": "Продукты 24",
+        "level": "0",
+        "opening_hours": "24/7",
+        "shop": "convenience",
+        "wheelchair": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14411980696,
+      "lat": 55.8156631,
+      "lon": 37.4916954,
+      "tags": {
+        "addr:floor": "1",
+        "brand": "Красное&Белое",
+        "brand:wikidata": "Q24933790",
+        "check_date": "2026-11-24",
+        "level": "0",
+        "name": "Красное&Белое",
+        "shop": "convenience"
+      }
+    }
+  ]
+}

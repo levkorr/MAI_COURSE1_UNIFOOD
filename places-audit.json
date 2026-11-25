@@ -1,0 +1,489 @@
+{
+  "queried_at": "2026-11-25T11:24:03.872Z",
+  "source": "OpenStreetMap MCP / osm_query_bbox",
+  "bbox": {
+    "minLat": 55.8045,
+    "minLon": 37.4875,
+    "maxLat": 55.8165,
+    "maxLon": 37.5092
+  },
+  "previous_fetched_at": "2026-11-19T18:39:35.035725",
+  "previous_count": 34,
+  "current_count": 34,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "missing_address": 29,
+  "missing_hours": 14,
+  "missing_check_date": 15,
+  "restricted": [
+    {
+      "id": "node/825997423",
+      "name": "Взлет",
+      "source_url": "https://www.openstreetmap.org/node/825997423",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-09-29",
+      "hours_check_date": null,
+      "access": "private",
+      "changes": {}
+    },
+    {
+      "id": "node/7034604121",
+      "name": "Теремок",
+      "source_url": "https://www.openstreetmap.org/node/7034604121",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": "2026-09-24",
+      "hours_check_date": null,
+      "access": "private",
+      "changes": {}
+    }
+  ],
+  "unnamed_excluded": [
+    {
+      "id": "node/3830469473",
+      "tags": {
+        "amenity": "fast_food",
+        "description": "Столовая",
+        "fast_food": "cafeteria",
+        "smoking": "no"
+      }
+    },
+    {
+      "id": "node/7034604118",
+      "tags": {
+        "amenity": "fast_food",
+        "fast_food": "cafeteria"
+      }
+    },
+    {
+      "id": "node/7034604125",
+      "tags": {
+        "amenity": "cafe"
+      }
+    },
+    {
+      "id": "node/7034604131",
+      "tags": {
+        "access": "private",
+        "addr:floor": "2",
+        "amenity": "cafe",
+        "check_date": "2026-09-24",
+        "cuisine": "coffee_shop",
+        "level": "1",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes"
+      }
+    },
+    {
+      "id": "node/13961956005",
+      "tags": {
+        "amenity": "fast_food",
+        "check_date": "2026-06-24",
+        "cuisine": "kebab"
+      }
+    },
+    {
+      "id": "node/13961956006",
+      "tags": {
+        "access": "private",
+        "amenity": "fast_food",
+        "check_date": "2026-09-25",
+        "fast_food": "cafeteria",
+        "payment:cash": "yes",
+        "payment:credit_cards": "yes",
+        "payment:debit_cards": "yes",
+        "wheelchair": "no"
+      }
+    },
+    {
+      "id": "node/14211199471",
+      "tags": {
+        "amenity": "cafe",
+        "check_date": "2026-09-24",
+        "cuisine": "coffee_shop",
+        "outdoor_seating": "no",
+        "takeaway": "yes"
+      }
+    }
+  ],
+  "places": [
+    {
+      "id": "node/523787628",
+      "name": "Шах Баку",
+      "source_url": "https://www.openstreetmap.org/node/523787628",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/675633542",
+      "name": "СССР",
+      "source_url": "https://www.openstreetmap.org/node/675633542",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-10-27",
+      "hours_check_date": "2026-10-27",
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/825997423",
+      "name": "Взлет",
+      "source_url": "https://www.openstreetmap.org/node/825997423",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-09-29",
+      "hours_check_date": null,
+      "access": "private",
+      "changes": {}
+    },
+    {
+      "id": "node/826366260",
+      "name": "Общежитие МАИ",
+      "source_url": "https://www.openstreetmap.org/node/826366260",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/2110382440",
+      "name": "9barcoffee",
+      "source_url": "https://www.openstreetmap.org/node/2110382440",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/3952575098",
+      "name": "TaAm hummus bar",
+      "source_url": "https://www.openstreetmap.org/node/3952575098",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-09-09",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/5143746663",
+      "name": "Хуан кофеман",
+      "source_url": "https://www.openstreetmap.org/node/5143746663",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-09-09",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/6169973667",
+      "name": "Столовая на Соколе",
+      "source_url": "https://www.openstreetmap.org/node/6169973667",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": "2025-09-20",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/6189885778",
+      "name": "ProCafe",
+      "source_url": "https://www.openstreetmap.org/node/6189885778",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/6222902881",
+      "name": "Zёrna fix",
+      "source_url": "https://www.openstreetmap.org/node/6222902881",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/6535852224",
+      "name": "YaSkofe",
+      "source_url": "https://www.openstreetmap.org/node/6535852224",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-10-30",
+      "hours_check_date": "2026-10-30",
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/6801999752",
+      "name": "Море лосося",
+      "source_url": "https://www.openstreetmap.org/node/6801999752",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/7034604121",
+      "name": "Теремок",
+      "source_url": "https://www.openstreetmap.org/node/7034604121",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": "2026-09-24",
+      "hours_check_date": null,
+      "access": "private",
+      "changes": {}
+    },
+    {
+      "id": "node/7034604126",
+      "name": "Космос",
+      "source_url": "https://www.openstreetmap.org/node/7034604126",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/8305712318",
+      "name": "Colorcoffee",
+      "source_url": "https://www.openstreetmap.org/node/8305712318",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/8305751417",
+      "name": "Mr. Kebab",
+      "source_url": "https://www.openstreetmap.org/node/8305751417",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-09-09",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/8356899518",
+      "name": "Донер",
+      "source_url": "https://www.openstreetmap.org/node/8356899518",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": "2025-09-20",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/11638393313",
+      "name": "Ломи",
+      "source_url": "https://www.openstreetmap.org/node/11638393313",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/12103997531",
+      "name": "Кофе М",
+      "source_url": "https://www.openstreetmap.org/node/12103997531",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/12803115726",
+      "name": "Cortado",
+      "source_url": "https://www.openstreetmap.org/node/12803115726",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/14167376744",
+      "name": "Cofix",
+      "source_url": "https://www.openstreetmap.org/node/14167376744",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": "2026-09-09",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/14221960501",
+      "name": "Даблби экспресс",
+      "source_url": "https://www.openstreetmap.org/node/14221960501",
+      "missing_address": false,
+      "missing_hours": true,
+      "check_date": "2026-09-27",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/14221960601",
+      "name": "Чайхана Хорезм",
+      "source_url": "https://www.openstreetmap.org/node/14221960601",
+      "missing_address": false,
+      "missing_hours": false,
+      "check_date": "2026-09-27",
+      "hours_check_date": "2026-09-27",
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/14334696240",
+      "name": "Врубель",
+      "source_url": "https://www.openstreetmap.org/node/14334696240",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "way/68047486",
+      "name": "Столовая МАИ",
+      "source_url": "https://www.openstreetmap.org/way/68047486",
+      "missing_address": false,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "way/585445407",
+      "name": "Ёлочка",
+      "source_url": "https://www.openstreetmap.org/way/585445407",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": "2026-06-24",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/674037564",
+      "name": "Магнолия",
+      "source_url": "https://www.openstreetmap.org/node/674037564",
+      "missing_address": false,
+      "missing_hours": false,
+      "check_date": "2026-09-24",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/751874021",
+      "name": "Гастроном",
+      "source_url": "https://www.openstreetmap.org/node/751874021",
+      "missing_address": true,
+      "missing_hours": true,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/2012083692",
+      "name": "МирРЭЛ",
+      "source_url": "https://www.openstreetmap.org/node/2012083692",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": null,
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/2381083749",
+      "name": "Магнолия",
+      "source_url": "https://www.openstreetmap.org/node/2381083749",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2025-09-20",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/4721175770",
+      "name": "Верный",
+      "source_url": "https://www.openstreetmap.org/node/4721175770",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-06-24",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/4968280662",
+      "name": "ВкусВилл",
+      "source_url": "https://www.openstreetmap.org/node/4968280662",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-09-24",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/5585887023",
+      "name": "Магнит",
+      "source_url": "https://www.openstreetmap.org/node/5585887023",
+      "missing_address": false,
+      "missing_hours": false,
+      "check_date": "2026-06-24",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    },
+    {
+      "id": "node/6674353636",
+      "name": "Магнолия",
+      "source_url": "https://www.openstreetmap.org/node/6674353636",
+      "missing_address": true,
+      "missing_hours": false,
+      "check_date": "2026-06-24",
+      "hours_check_date": null,
+      "access": null,
+      "changes": {}
+    }
+  ],
+  "limitation": "Comparison with the current OSM mirror; business operation and opening hours are not independently confirmed. Walking times are estimates. The mirror updates daily."
+}
