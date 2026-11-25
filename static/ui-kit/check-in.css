@@ -28,6 +28,7 @@
 }
 
 .kit-check-in__option {
+  position: relative;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -38,7 +39,14 @@
   cursor: pointer;
 }
 
-.kit-check-in__option input { margin: 0; accent-color: var(--color-selected); }
+.kit-check-in__option input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
 .kit-check-in__option:has(:checked) { background: var(--color-action); border-color: var(--color-selected); }
 .kit-check-in__option:has(:focus-visible) { outline: var(--interaction-focus-width) solid var(--color-focus); outline-offset: var(--interaction-focus-offset); }
 .kit-check-in__option input:focus-visible { outline: none; }
