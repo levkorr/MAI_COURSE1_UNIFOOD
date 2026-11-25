@@ -90,6 +90,7 @@ try {
     assert.equal(await run("['#show-map','#university','#break','#time','.filters button','.place-title','.heart','.locate-place'].every(s => document.querySelector(s).offsetHeight >= 44)"), true);
     await tap('#show-map');
     assert.equal(await visible('#place-map'), true);
+    assert.equal(await run("document.querySelector('#place-map').offsetWidth === document.querySelector('#workspace').offsetWidth"), true);
     assert.equal(await visible('#place-results'), false);
     assert.equal(await noOverflow(), true);
     await tap('[data-view=list]');
@@ -150,6 +151,8 @@ try {
   assert.equal(await visible('#place-results'), true);
   assert.equal(await visible('#place-map'), true);
   assert.equal(await run("getComputedStyle(document.querySelector('#workspace')).gridTemplateColumns.split(' ').length"), 12);
+  assert.equal(await run("getComputedStyle(document.querySelector('#place-map')).gridColumnStart"), 'span 8');
+  assert.equal(await run("getComputedStyle(document.querySelector('#place-results')).gridColumnStart"), 'span 4');
   assert.equal(await run("document.querySelector('#place-results').getBoundingClientRect().right < document.querySelector('#place-map').getBoundingClientRect().left"), true);
   assert.deepEqual(await run("['#university','#time','#visit-date'].map(id=>document.querySelector(id).value)"), searchState);
   await tap('[data-category=all]');

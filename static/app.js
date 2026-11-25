@@ -19,8 +19,6 @@ function showStatus(selector, message, tone = 'neutral') {
  status.textContent = message;
 }
 const mobileLayout = matchMedia('(max-width: 730px)');
-const clusterPreview = new URLSearchParams(location.search).get('map') === 'groups';
-if (clusterPreview) $('#workspace').classList.add('workspace-map-preview');
 const viewButtons = document.querySelectorAll('[data-view]');
 
 function setWorkspaceView(view) {
@@ -163,7 +161,6 @@ function initMap(){
  else schematicMap.setView(bounds.getCenter(), -2);
  L.marker([500,500],{icon:L.divIcon({className:'campus-map-icon',html:`<span>✦</span><b>${universities[university].origin_label}</b>`,iconSize:[39,39],iconAnchor:[19.5,19.5]}),zIndexOffset:1000,title:universities[university].origin_label}).addTo(schematicMap);
  mapMarkers=L.layerGroup().addTo(schematicMap);
- if (clusterPreview) schematicMap.on('zoomend', () => renderMap(visibleMapPlaces));
  const reset=L.control({position:'topright'});
  reset.onAdd=()=>{const button=L.DomUtil.create('button','map-reset kit-action kit-action--secondary kit-surface-control');button.type='button';button.textContent='Весь район';button.title='Показать весь радиус 1 км';L.DomEvent.disableClickPropagation(button);button.onclick=resetView;return button;};reset.addTo(schematicMap);
  schematicMap.zoomControl.setPosition('topright');
@@ -193,83 +190,12 @@ function locate(id){
  document.querySelectorAll('.card').forEach(card=>card.classList.toggle('map-selected',card.querySelector('[data-locate]')?.dataset.locate===id));
 }
 
-function groupMapPlaces(places) {
- const groups = places.map(place => ({places: [place], point: L.latLng(mapPoint(place).point)}));
- // Work in screen pixels so the same footprint applies at every zoom.
- for (let index = 0; index < groups.length; index++) {
-  const group = groups[index];
-  const center = schematicMap.project(group.point);
-  const overlap = groups.findIndex((candidate, candidateIndex) => {
-   if (candidateIndex <= index) return false;
-   const other = schematicMap.project(candidate.point);
-   const width = (group.places.length === 1 ? 38 : 22) + (candidate.places.length === 1 ? 38 : 22);
-   return Math.abs(other.x - center.x) < width + 8 && Math.abs(other.y - center.y) < 52;
-  });
-  if (overlap === -1) continue;
-
-  const other = groups.splice(overlap, 1)[0];
-  const count = group.places.length + other.places.length;
-  group.point = L.latLng(
-   (group.point.lat * group.places.length + other.point.lat * other.places.length) / count,
-   (group.point.lng * group.places.length + other.point.lng * other.places.length) / count,
-  );
-  group.places.push(...other.places);
-  // A new center can intersect a group that was already checked.
-  index = -1;
- }
- return groups;
-}
-
-function addMapGroup(group) {
- const label = `Мест в группе: ${group.places.length}`;
- const selected = group.places.some(place => place.id === selectedMapId);
- const marker = L.marker(group.point, {
-  title: label,
-  zIndexOffset: 1200,
-  icon: L.divIcon({
-   className: `map-group ${selected ? 'map-group-selected' : ''}`,
-   html: `<span aria-hidden="true">${group.places.length}</span>`,
-   iconSize: [44, 44],
-   iconAnchor: [22, 22],
-  }),
- }).addTo(mapMarkers);
- marker.getElement().setAttribute('aria-label', label);
- marker.on('click', event => {
-  const fromKeyboard = event.originalEvent?.type === 'keypress';
-  if (schematicMap.getZoom() < schematicMap.getMaxZoom()) {
-   schematicMap.setView(group.point, Math.min(schematicMap.getZoom() + 1, schematicMap.getMaxZoom()), {animate: false});
-   if (fromKeyboard) $('#schematic-view').focus();
-   return;
-  }
-
-  const content = document.createElement('div');
-  content.className = 'map-group-list';
-  const title = document.createElement('strong');
-  title.textContent = label;
-  content.append(title);
-  for (const place of group.places) {
-   const button = document.createElement('button');
-   button.type = 'button';
-   button.className = 'kit-action kit-action--secondary kit-surface-control';
-   button.textContent = place.name;
-   button.onclick = () => details(place.id);
-   content.append(button);
-  }
-  L.popup().setLatLng(group.point).setContent(content).openOn(schematicMap);
-  if (fromKeyboard) content.querySelector('button')?.focus();
- });
-}
-
 function renderMap(list){
  visibleMapPlaces=list;
  const inRange=list.filter(p=>mapPoint(p).inside);
  const p=inRange.find(p=>p.id===selectedMapId)||inRange[0];
  selectedMapId=p?.id||null;
- if(mapMarkers){mapMarkers.clearLayers();
-  const groups = clusterPreview ? groupMapPlaces(inRange) : inRange.map(place => ({places: [place]}));
-  groups.forEach(group=>{
-  if (group.places.length > 1) { addMapGroup(group); return; }
-  const [place] = group.places;
+ if(mapMarkers){mapMarkers.clearLayers();inRange.forEach(place=>{
   const icon=L.divIcon({className:`load-map-icon kit-feedback ${statusStyles[place.tone] || ""} ${place.id===selectedMapId?'is-selected':''}`,html:`<span>${place.icon}</span><b>${countLabel(place)}</b>`,iconSize:[76,44],iconAnchor:[38,22]});
   const marker=L.marker(mapPoint(place).point,{icon,title:`${place.name}: ${place.status} · ${countLabel(place)}`,zIndexOffset:place.id===selectedMapId?500:0}).addTo(mapMarkers);
   marker.bindTooltip(`${escapeHTML(place.name)} · ${countLabel(place)}`);
@@ -400,5 +326,4 @@ async function load(){
 $('#break').onchange=()=>{setTimes();load();};$('#time').onchange=load;$('#visit-date').onchange=load;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
 
 viewButtons.forEach(button => button.addEventListener('click', () => setWorkspaceView(button.dataset.view)));
-if (clusterPreview && mobileLayout.matches) setWorkspaceView('map');
 setInterval(()=>{if(!document.hidden && !document.querySelector("dialog[open]"))load();},60000);
