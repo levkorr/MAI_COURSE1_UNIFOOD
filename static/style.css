@@ -39,11 +39,13 @@ h1, h2, h3 { margin: 0; }
   display: grid;
   grid-template-columns: repeat(4, minmax(var(--target-min), auto));
   justify-content: start;
+  gap: var(--space-8);
 }
 .filters .kit-action {
   padding-inline: var(--space-4);
   overflow-wrap: anywhere;
 }
+.filter-row--categories .kit-action { padding-inline: var(--space-8); }
 #cards {
   display: grid;
   align-content: start;
