@@ -46,6 +46,16 @@ h1, h2, h3 { margin: 0; }
   overflow-wrap: anywhere;
 }
 .filter-row--categories .kit-action { padding-inline: var(--space-8); }
+.filter-row--primary {
+  gap: var(--space-8);
+}
+.filter-row--primary .kit-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--inline-gap);
+  padding-inline: var(--space-8);
+}
+#fav-count { font-variant-numeric: tabular-nums; }
 #cards {
   display: grid;
   align-content: start;
