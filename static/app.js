@@ -21,6 +21,7 @@ function showStatus(selector, message, tone = 'neutral') {
 const mobileLayout = matchMedia('(max-width: 730px)');
 const workspace = $('#workspace');
 const mapPanel = $('#place-map');
+const mapNotes = $('#map-notes');
 const filters = $('.filters');
 
 function syncWorkspaceOrder() {
@@ -29,8 +30,13 @@ function syncWorkspaceOrder() {
 
  const active = document.activeElement;
  const restoreFocus = mapPanel.contains(active);
- if (mobileLayout.matches) filters.after(mapPanel);
- else workspace.append(mapPanel);
+ if (mobileLayout.matches) {
+  filters.after(mapPanel);
+  workspace.after(mapNotes);
+ } else {
+  workspace.append(mapPanel);
+  mapPanel.append(mapNotes);
+ }
  if (restoreFocus) active.focus({preventScroll: true});
 }
 
