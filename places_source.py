@@ -6,11 +6,17 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+from threading import Lock, Thread
 from universities import UNIVERSITIES
 
 CAMPUS = (55.8104364, 37.4983111)
 CACHE = Path(__file__).with_name('places-cache.json')
 ENDPOINTS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']
+CACHE_TTL = 86400
+RETRY_DELAY = 300
+refresh_lock = Lock()
+refresh_after = {}
 
 
 def parse_osm_xml(raw, campus=CAMPUS):
@@ -73,44 +79,81 @@ def parse(elements, campus=CAMPUS):
     return sorted(result, key=lambda p: p['distance'])
 
 
-def get_places(university='mai'):
-    campus = UNIVERSITIES[university]['campus']
-    cache = CACHE if university == 'mai' else CACHE.with_name(f'places-cache-{university}.json')
-    cached = None
-    if cache.exists():
-        try:
-            cached = json.loads(cache.read_text(encoding='utf-8'))
-            if time.time() - cached['fetched_at'] < 86400:
-                return cached, False
-        except (ValueError, KeyError):
-            cached = None
+def fetch_places(campus):
     query = f'''[out:json][timeout:20];(nwr(around:650,{campus[0]},{campus[1]})[amenity~"^(cafe|fast_food|restaurant)$"];nwr(around:650,{campus[0]},{campus[1]})[shop~"^(supermarket|convenience|bakery)$"];);out center tags;'''
     for endpoint in ENDPOINTS:
         try:
             req = urllib.request.Request(endpoint, data=urllib.parse.urlencode({'data': query}).encode(), headers={'User-Agent': 'MezhduParamiPrototype/1.0'})
             with urllib.request.urlopen(req, timeout=27) as response:
                 payload = json.load(response)
-            cached = dict(places=parse(payload['elements'], campus), fetched_at=time.time(), source='OpenStreetMap / Overpass')
-            cache.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding='utf-8')
-            return cached, False
+            places = parse(payload['elements'], campus)
+            if places and not payload.get('remark'):
+                return dict(places=places, fetched_at=time.time(), source='OpenStreetMap / Overpass')
         except (OSError, ValueError, KeyError):
             continue
-    if cached:
-        return cached, True
     try:
         lat, lon = campus
         bbox = f'{lon-.012},{lat-.007},{lon+.012},{lat+.007}'
         req = urllib.request.Request('https://api.openstreetmap.org/api/0.6/map?bbox='+bbox, headers={'User-Agent': 'MezhduParamiPrototype/1.0'})
         with urllib.request.urlopen(req, timeout=30) as response:
             real_places = parse_osm_xml(response.read(), campus)
-        cached = dict(places=real_places, fetched_at=time.time(), source='OpenStreetMap API')
-        cache.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding='utf-8')
-        return cached, False
-    except (OSError, ValueError, ET.ParseError):
+        if real_places:
+            return dict(places=real_places, fetched_at=time.time(), source='OpenStreetMap API')
+    except (OSError, ValueError, KeyError, ET.ParseError):
         pass
     raise RuntimeError('Не удалось загрузить заведения. Повторите запрос позже.')
 
 
+def refresh_places(cache, campus):
+    data = fetch_places(campus)
+    temporary_path = None
+    try:
+        with NamedTemporaryFile(mode='w', encoding='utf-8', dir=cache.parent, delete=False) as temporary:
+            temporary_path = Path(temporary.name)
+            json.dump(data, temporary, ensure_ascii=False, indent=2)
+        temporary_path.replace(cache)
+    except OSError:
+        if temporary_path is not None:
+            try:
+                temporary_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+    return data
+
+
+def refresh_in_background(cache, campus):
+    try:
+        refresh_places(cache, campus)
+    except RuntimeError:
+        pass
+    finally:
+        with refresh_lock:
+            refresh_after[cache] = time.monotonic() + RETRY_DELAY
+
+
+def get_places(university='mai', *, background=True):
+    campus = UNIVERSITIES[university]['campus']
+    cache = CACHE if university == 'mai' else CACHE.with_name(f'places-cache-{university}.json')
+    try:
+        cached = json.loads(cache.read_text(encoding='utf-8'))
+        if not cached['places']:
+            raise ValueError('Empty catalogue')
+        stale = time.time() - cached['fetched_at'] >= CACHE_TTL
+    except (OSError, ValueError, KeyError, TypeError):
+        return refresh_places(cache, campus), False
+    if stale:
+        if not background:
+            try:
+                return refresh_places(cache, campus), False
+            except RuntimeError:
+                return cached, True
+        with refresh_lock:
+            if time.monotonic() >= refresh_after.get(cache, 0):
+                refresh_after[cache] = float('inf')
+                Thread(target=refresh_in_background, args=(cache, campus), daemon=True).start()
+    return cached, stale
+
+
 if __name__ == '__main__':
-    data, stale = get_places()
+    data, stale = get_places(background=False)
     print(json.dumps(dict(count=len(data['places']), names=[p['name'] for p in data['places']], stale=stale), ensure_ascii=False))
