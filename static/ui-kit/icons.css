@@ -1,0 +1,16 @@
+.kit-icon {
+  display: inline-block;
+  flex: none;
+  inline-size: var(--kit-icon-size);
+  block-size: var(--kit-icon-size);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+}
+
+.kit-icon--16 { --kit-icon-size: 1rem; }
+.kit-icon--20 { --kit-icon-size: 1.25rem; }
+.kit-icon--24 { --kit-icon-size: 1.5rem; }

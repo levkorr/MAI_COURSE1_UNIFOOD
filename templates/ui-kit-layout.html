@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Пример компоновки UI Kit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/colors.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/sizing.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/layout.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/layout-example.css') }}">
+</head>
+<body class="kit-colors kit-sizing layout-example">
+  <main class="kit-container kit-stack">
+    <div class="kit-grid" aria-label="Пример сетки">
+      <div class="layout-block" style="--grid-span: 8">1</div>
+      <div class="layout-block" style="--grid-span: 4">2</div>
+      <div class="layout-block" style="--grid-span: 6; --grid-span-mobile: 2">3</div>
+      <div class="layout-block" style="--grid-span: 6; --grid-span-mobile: 2">4</div>
+    </div>
+    <div class="kit-cluster" aria-label="Пример группы с переносом">
+      <div class="layout-block">5</div>
+      <div class="layout-block">6</div>
+      <div class="layout-block">7</div>
+    </div>
+  </main>
+</body>
+</html>

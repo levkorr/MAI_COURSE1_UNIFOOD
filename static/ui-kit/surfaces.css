@@ -1,0 +1,49 @@
+.kit-surfaces {
+  --surface-page: var(--color-canvas);
+  --surface-card: var(--color-surface);
+  --surface-float: var(--color-surface);
+  --surface-border: var(--color-border);
+  --surface-control-border: var(--color-control-border);
+  --surface-border-width: 1px;
+  --surface-radius-control: .625rem;
+  --surface-radius-card: 1rem;
+  --surface-radius-float: 1.25rem;
+  --surface-shadow-flat: none;
+  --surface-shadow-float: 0 .5rem 1.5rem color-mix(in srgb, var(--color-text) 18%, transparent);
+  --surface-backdrop: color-mix(in srgb, var(--color-text) 36%, transparent);
+  --surface-layer-float: 10;
+}
+
+.kit-surface-page {
+  background: var(--surface-page);
+  box-shadow: var(--surface-shadow-flat);
+}
+
+.kit-surface-card,
+.kit-surface-float {
+  border: var(--surface-border-width) solid var(--surface-border);
+}
+
+.kit-surface-card {
+  border-radius: var(--surface-radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--surface-shadow-flat);
+}
+
+.kit-surface-float {
+  border-radius: var(--surface-radius-float);
+  background: var(--surface-float);
+  box-shadow: var(--surface-shadow-float);
+}
+
+.kit-surface-control {
+  border: var(--surface-border-width) solid var(--surface-control-border);
+  border-radius: var(--surface-radius-control);
+}
+
+.kit-layer-float {
+  position: relative;
+  z-index: var(--surface-layer-float);
+}
+
+dialog.kit-surface-float::backdrop { background: var(--surface-backdrop); }

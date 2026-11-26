@@ -1,0 +1,30 @@
+.kit-interaction {
+  --interaction-focus-width: 3px;
+  --interaction-focus-offset: 3px;
+}
+
+.kit-interaction :where(button, input, select, a):focus-visible {
+  outline: var(--interaction-focus-width) solid var(--color-focus);
+  outline-offset: var(--interaction-focus-offset);
+}
+
+.kit-action {
+  min-inline-size: var(--target-min);
+  min-block-size: var(--target-min);
+  padding-inline: var(--control-padding);
+  background: var(--color-action);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .kit-action:not(:disabled, [aria-pressed="true"]):hover { background: var(--color-action-hover); }
+}
+
+.kit-action:not(:disabled, [aria-pressed="true"]):active { background: var(--color-action-pressed); }
+.kit-action[aria-pressed="true"] { background: var(--color-selected); color: var(--color-on-selected); }
+.kit-action:disabled { background: var(--color-disabled); color: var(--color-on-disabled); cursor: default; }
+.kit-interaction [aria-invalid="true"] { border-color: var(--color-failure-text); }
+.kit-interaction-error { color: var(--color-failure-text); }
+.kit-interaction-status { color: var(--color-success-text); }

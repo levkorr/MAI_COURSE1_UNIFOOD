@@ -1,0 +1,5 @@
+* { box-sizing: border-box; }
+body { margin: 0; padding-block: var(--space-16); color: var(--color-text); }
+.place-card-example + .place-card-example { margin-block-start: var(--space-16); }
+.place-card-example h2 { margin: 0 0 var(--space-8); }
+.place-card-example .kit-place-card { max-inline-size: 42rem; }

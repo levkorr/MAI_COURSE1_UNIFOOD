@@ -1,0 +1,5 @@
+{% macro icon(name, size=20) -%}
+<svg class="kit-icon kit-icon--{{ size }}" aria-hidden="true" focusable="false">
+  <use href="{{ url_for('static', filename='ui-kit/lucide.svg') }}#{{ name }}"></use>
+</svg>
+{%- endmacro %}

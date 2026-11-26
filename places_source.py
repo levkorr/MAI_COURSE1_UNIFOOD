@@ -108,7 +108,7 @@ def get_places(university='mai'):
         return cached, False
     except (OSError, ValueError, ET.ParseError):
         pass
-    raise RuntimeError('Не удалось загрузить заведения из OpenStreetMap. Повторите запрос позже.')
+    raise RuntimeError('Не удалось загрузить заведения. Повторите запрос позже.')
 
 
 if __name__ == '__main__':

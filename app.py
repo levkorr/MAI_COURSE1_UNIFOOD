@@ -86,9 +86,27 @@ def active_observations(db):
 
 @app.get('/')
 def index():
-    today = datetime.now(MOSCOW).date()
-    return render_template('index.html', breaks=BREAKS, universities=UNIVERSITIES,
-                           today=today.isoformat(), tomorrow=(today + timedelta(days=1)).isoformat())
+    return render_template('index.html', breaks=BREAKS, universities=UNIVERSITIES)
+
+
+@app.get('/ui-kit')
+def ui_kit():
+    return render_template('ui-kit.html')
+
+
+@app.get('/ui-kit/layout-example')
+def ui_kit_layout_example():
+    return render_template('ui-kit-layout.html')
+
+
+@app.get('/ui-kit/place-card-example')
+def ui_kit_place_card_example():
+    return render_template('ui-kit-place-card-example.html')
+
+
+@app.get('/ui-kit/check-in-example')
+def ui_kit_check_in_example():
+    return render_template('ui-kit-check-in-example.html')
 
 
 @app.get('/api/places')
@@ -139,7 +157,7 @@ def plan_visit():
         return jsonify(error='Выберите время из списка'), 400
     now = datetime.now(MOSCOW)
     if g.visit_date == now.date().isoformat() and slot_minutes(payload['time']) <= now.hour*60 + now.minute:
-        return jsonify(error='Это время уже прошло. Выберите «Завтра» или более позднее время.'), 400
+        return jsonify(error='Это время уже прошло. Записаться нельзя.'), 400
     try:
         data, _ = get_places(g.university)
     except RuntimeError as error:

@@ -1,0 +1,20 @@
+{% from 'ui-kit-check-in.html' import check_in %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Я здесь · UI Kit</title>
+  {% for sheet in ['colors', 'typography', 'icons', 'sizing', 'layout', 'surfaces', 'interaction', 'components', 'check-in'] %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/' ~ sheet ~ '.css') }}">
+  {% endfor %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='ui-kit/place-card-example.css') }}">
+  <script defer src="{{ url_for('static', filename='ui-kit/check-in-example.js') }}"></script>
+</head>
+<body class="kit-colors kit-type kit-sizing kit-surfaces kit-interaction kit-surface-page type-body">
+  <main class="kit-container">
+    <button id="open-check-in" class="kit-action kit-surface-control" type="button">Открыть «Я здесь»</button>
+    {{ check_in('Магнит') }}
+  </main>
+</body>
+</html>
