@@ -47,26 +47,44 @@ const universities=JSON.parse($('#university-data').textContent);
 let university='mai', mapResizeObserver;
 let ORIGIN={lat:universities[university].campus[0],lon:universities[university].campus[1]};
 let viewMode='now', myPlan=null, loadedTime='now', loadedDate=null, canPlan=false, loadVersion=0;
+let selectionVersion = 0, savingPlan = false;
 const pastTimeMessage = 'Это время уже прошло. Записаться нельзя.';
 const planned = () => viewMode==='planned';
 const countLabel = p => planned()?`${p.planned_count} чел.`:p.report_count?`≈${p.people} чел.`:'Нет оценок';
 const actionLabel = p => planned()?(myPlan?.place_id===p.id && myPlan.slot===loadedTime?'Отменить план':canPlan?'Пойду сюда':'Время прошло'):'Я здесь';
-const actionDisabled = p => planned() && !canPlan && !(myPlan?.place_id===p.id && myPlan.slot===loadedTime)?'disabled':'';
+const planDisabled = id => savingPlan || (!canPlan && !(myPlan?.place_id===id && myPlan.slot===loadedTime));
+const planActionAttributes = p => `data-plan-place="${escapeHTML(p.id)}" ${planned() && planDisabled(p.id) ? 'disabled' : ''}`;
+function syncPlanActions() {
+ if (!planned()) return;
+ for (const button of document.querySelectorAll('[data-plan], [data-plan-place]')) {
+  const id = button.dataset.plan ?? button.dataset.planPlace;
+  button.disabled = planDisabled(id);
+  button.textContent = actionLabel({id});
+ }
+}
 function choosePlace(id){if(planned())updatePlan(id);else openCheckIn(id);}
 async function updatePlan(id){
  if($('#time').value!==loadedTime || $('#search').disabled){showStatus('#plan-status','Дождитесь загрузки выбранного времени.','amber');return;}
+ if(savingPlan)return;
  const cancel=myPlan?.place_id===id && myPlan.slot===loadedTime;
  if(!cancel && !canPlan){showStatus('#plan-status',pastTimeMessage,'amber');return;}
- document.querySelectorAll('.check-in-trigger, #detail-check-in, .kit-place-card__plan').forEach(b=>b.disabled=true);
+ const version = selectionVersion, date = loadedDate;
+ const sameSelection = () => version === selectionVersion && date === loadedDate;
+ savingPlan = true;
+ syncPlanActions();
  try{
   const response=await fetch('/api/plans?university='+university+'&date='+loadedDate,{method:cancel?'DELETE':'POST',headers:{'Content-Type':'application/json'},...(cancel?{}:{body:JSON.stringify({place_id:id,time:loadedTime})})});
   const data=await response.json();if(!response.ok)throw Error(data.error||'Не удалось сохранить план');
+  if(!sameSelection()) return;
   myPlan=data.my_plan;
-  $('#detail').close();
-  await load();
+  await load({keepDialogs:true});
+  if(!sameSelection()) return;
   showStatus('#plan-status',cancel?'План отменён.':'План сохранён. Вы учтены среди тех, кто собирается прийти.','green');
- }catch(error){showStatus('#plan-status',error.message,'red');}
- finally{if(places.length)render();}
+ }catch(error){if(sameSelection()) showStatus('#plan-status',error.message,'red');}
+ finally{
+  savingPlan = false;
+  syncPlanActions();
+ }
 }
 function mapPoint(p){
  const north=(p.lat-ORIGIN.lat)*111195;
@@ -212,11 +230,11 @@ function renderMap(list){
   const icon=L.divIcon({className:`load-map-icon kit-feedback ${statusStyles[place.tone] || ""} ${place.id===selectedMapId?'is-selected':''}`,html:`<span>${place.icon}</span><b>${countLabel(place)}</b>`,iconSize:[76,44],iconAnchor:[38,22]});
   const marker=L.marker(mapPoint(place).point,{icon,title:`${place.name}: ${place.status} · ${countLabel(place)}`,zIndexOffset:place.id===selectedMapId?500:0}).addTo(mapMarkers);
   marker.bindTooltip(`${escapeHTML(place.name)} · ${countLabel(place)}`);
-  marker.on('click',()=>{selectedMapId=place.id;renderMap(visibleMapPlaces);const popup=L.popup({className:'check-in-popup',closeButton:true}).setLatLng(mapPoint(place).point).setContent(`<strong>${escapeHTML(place.name)}</strong><p>${planned()?`План на сегодня, около ${loadedTime}`:'Сколько людей здесь сейчас?'}</p><button type="button" class="popup-check-in check-in-trigger kit-action kit-surface-control" ${actionDisabled(place)}>${actionLabel(place)}</button>`).openOn(schematicMap);popup.getElement().querySelector('.popup-check-in').onclick=()=>choosePlace(place.id);document.querySelectorAll('.card').forEach(card=>card.classList.toggle('map-selected',card.querySelector('[data-locate]')?.dataset.locate===place.id));});
+  marker.on('click',()=>{selectedMapId=place.id;renderMap(visibleMapPlaces);const popup=L.popup({className:'check-in-popup',closeButton:true}).setLatLng(mapPoint(place).point).setContent(`<strong>${escapeHTML(place.name)}</strong><p>${planned()?`План на сегодня, около ${loadedTime}`:'Сколько людей здесь сейчас?'}</p><button type="button" class="popup-check-in check-in-trigger kit-action kit-surface-control" ${planActionAttributes(place)}>${actionLabel(place)}</button>`).openOn(schematicMap);popup.getElement().querySelector('.popup-check-in').onclick=()=>choosePlace(place.id);document.querySelectorAll('.card').forEach(card=>card.classList.toggle('map-selected',card.querySelector('[data-locate]')?.dataset.locate===place.id));});
   marker.on('dblclick',()=>details(place.id));
  });}
  if(!p){$('#map-selection').textContent='Нет заведений для выбранного фильтра';return;}
- $('#map-selection').innerHTML=`<div class="selection-icon">${p.icon}</div><div><button class="map-place-detail kit-action kit-action--secondary kit-surface-control">${escapeHTML(p.name)}</button><span>≈ ${p.walk} мин пешком · ${p.distance} м по прямой</span>${reportSummary(p)}</div><button class="check-in-trigger kit-action kit-surface-control" type="button" ${actionDisabled(p)}>${actionLabel(p)}</button>`;
+ $('#map-selection').innerHTML=`<div class="selection-icon">${p.icon}</div><div><button class="map-place-detail kit-action kit-action--secondary kit-surface-control">${escapeHTML(p.name)}</button><span>≈ ${p.walk} мин пешком · ${p.distance} м по прямой</span>${reportSummary(p)}</div><button class="check-in-trigger kit-action kit-surface-control" type="button" ${planActionAttributes(p)}>${actionLabel(p)}</button>`;
  $('#map-selection .map-place-detail').onclick=()=>details(p.id);$('#map-selection .check-in-trigger').onclick=()=>openCheckIn(p.id);
 }
 
@@ -234,7 +252,7 @@ $('#university').onchange=()=>{
  const config=universities[university];ORIGIN={lat:config.campus[0],lon:config.campus[1]};
  selectedMapId=null;places=[];myPlan=null;
  $('#university-heading').textContent='Рядом с '+config.name;
- setBreaks();initMap();load();
+ setBreaks();initMap();loadSelection();
 };
 function setTimes(initial=false){
  const group=universities[university].breaks[Number($('#break').value)].slots;
@@ -249,7 +267,7 @@ function details(id){
  const description=planned()
   ? `сегодня около ${loadedTime} (±5 минут) сюда собираются ${p.planned_count} чел. Это планы пользователей, а не фактическое число посетителей.`
   : p.report_count?`Сейчас примерно ${p.people} чел. · оценок за 30 минут: ${p.report_count}`:'Пока нет свежих оценок посетителей. Число людей неизвестно.';
- $('#detail-content').innerHTML=`<div class="detail-icon">${p.icon}</div><h2 id="detail-title" class="detail-title type-h2">${escapeHTML(p.name)}</h2><p class="detail-text">${p.label} · ≈ ${p.walk} мин пешком от ${universities[university].name}</p>${badge(p)}<p class="detail-text">${description}</p><p class="detail-text">${escapeHTML(p.address === "Адрес не указан в OSM" ? "Адрес не указан" : p.address)}<br>${escapeHTML(p.hours)}</p><a class="source-link kit-link" href="https://yandex.ru/maps/?rtext=${ORIGIN.lat},${ORIGIN.lon}~${p.lat},${p.lon}&rtt=pd" target="_blank" rel="noopener noreferrer">Построить пеший маршрут ↗</a>${reportSummary(p)}<button class="check-in-primary kit-action kit-surface-control" id="detail-check-in" type="button" ${actionDisabled(p)}>${actionLabel(p)}</button>`;
+ $('#detail-content').innerHTML=`<div class="detail-icon">${p.icon}</div><h2 id="detail-title" class="detail-title type-h2">${escapeHTML(p.name)}</h2><p class="detail-text">${p.label} · ≈ ${p.walk} мин пешком от ${universities[university].name}</p>${badge(p)}<p class="detail-text">${description}</p><p class="detail-text">${escapeHTML(p.address === "Адрес не указан в OSM" ? "Адрес не указан" : p.address)}<br>${escapeHTML(p.hours)}</p><a class="source-link kit-link" href="https://yandex.ru/maps/?rtext=${ORIGIN.lat},${ORIGIN.lon}~${p.lat},${p.lon}&rtt=pd" target="_blank" rel="noopener noreferrer">Построить пеший маршрут ↗</a>${reportSummary(p)}<button class="check-in-primary kit-action kit-surface-control" id="detail-check-in" type="button" ${planActionAttributes(p)}>${actionLabel(p)}</button>`;
  $('#detail').showModal();$('#detail-check-in').onclick=()=>{$('#detail').close();choosePlace(id);};locate(id);
 }
 const placeCardTemplate = $('#place-card-template');
@@ -282,7 +300,7 @@ function renderPlaceCard(place) {
 
  plan.dataset.plan = place.id;
  plan.hidden = !isPlanned;
- plan.disabled = !isPlanned || (!canPlan && !savedPlan);
+ plan.disabled = !isPlanned || planDisabled(place.id);
  if (isPlanned) plan.textContent = actionLabel(place);
  plan.classList.toggle('kit-action--secondary', savedPlan);
  return card;
@@ -290,11 +308,24 @@ function renderPlaceCard(place) {
 
 function render(){
  const sort=$('#sort').value;
- const list=places.filter(p=>category==='all'||(category==='favorites'?saved.has(p.id):p.category===category)).sort((a,b)=>Number(saved.has(b.id))-Number(saved.has(a.id))||(sort==='walk'?a.walk-b.walk:planned()?a.planned_count-b.planned_count:a.load-b.load));
- $('#count').textContent=list.length;$('#fav-count').textContent=saved.size;$('#empty').hidden=!!list.length;
+ const list=places.filter(p=>category==='all'||(category==='favorites'?saved.has(p.id):p.category===category));
+ list.sort((a,b) => {
+  let order;
+  if(sort === 'walk') order = a.walk - b.walk;
+  else if(planned()) order = a.planned_count - b.planned_count;
+  else order = Number(b.report_count > 0) - Number(a.report_count > 0) || a.load - b.load;
+  return order || Number(saved.has(b.id)) - Number(saved.has(a.id)) || a.distance - b.distance;
+ });
+ $('#count').textContent=list.length;$('#fav-count').textContent=places.filter(p=>saved.has(p.id)).length;$('#empty').hidden=!!list.length;
  const cards = $('#cards');
+ const focused = document.activeElement;
+ const action = cards.contains(focused) && ['detail', 'save', 'locate', 'plan'].find(key => key in focused.dataset);
  cards.replaceChildren(...list.map(renderPlaceCard));
  cards.tabIndex = list.length ? 0 : -1;
+ if (action) {
+  const replacement = cards.querySelector(`[data-${action}="${CSS.escape(focused.dataset[action])}"]:enabled:not([hidden])`);
+  (replacement || (list.length ? cards : $('#favorites'))).focus({preventScroll:true});
+ }
  renderMap(list);
  document.querySelectorAll('[data-locate]').forEach(button => button.onclick = () => {
   if (mobileLayout.matches) {
@@ -314,12 +345,16 @@ function render(){
  $('#empty').textContent=category==='favorites'?'Пока нет избранных заведений рядом с этим вузом. Добавь место кнопкой «Избранное».':'Для выбранного фильтра заведений нет.';
  $('.schematic-legend').innerHTML=planned()?'<span>Число людей, планирующих прийти ±5 минут</span>':'<span><i class="kit-feedback" aria-hidden="true"></i>Нет оценок</span><span><i class="kit-feedback kit-feedback--success" aria-hidden="true"></i>Свободно</span><span><i class="kit-feedback kit-feedback--warning" aria-hidden="true"></i>Умеренно</span><span><i class="kit-feedback kit-feedback--failure" aria-hidden="true"></i>Загружено</span><small>По оценкам посетителей</small>';
 }
-async function load(){
+function loadSelection(){
+ selectionVersion++;
+ return load();
+}
+async function load({keepDialogs = false} = {}){
  const version=++loadVersion, slot=$('#time').value, b=$('#search');
  b.disabled=true;b.setAttribute('aria-busy','true');$('#search-label').textContent='Ищем места…';$('#plan-status').textContent='';
  $('#results-error').hidden=true;$('#results-error').textContent='';
- if($('#detail').open)$('#detail').close();
- if($('#check-in').open)$('#check-in').close();
+ if(!keepDialogs && $('#detail').open)$('#detail').close();
+ if(!keepDialogs && $('#check-in').open)$('#check-in').close();
  if(schematicMap)schematicMap.closePopup();
  document.querySelectorAll('.check-in-trigger').forEach(button=>button.disabled=true);
  try{
@@ -336,6 +371,6 @@ async function load(){
  }catch(error){if(version!==loadVersion)return;places=[];render();$('#empty').hidden=true;$('#plan-time-note').textContent='';$('#results-error').hidden=false;$('#results-error').textContent=error.message||'Не удалось загрузить места. Повторите поиск.';}
  finally{if(version===loadVersion){b.disabled=false;b.removeAttribute('aria-busy');$('#search-label').textContent='Найти место';}}
 }
-$('#break').onchange=()=>{setTimes();load();};$('#time').onchange=load;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
+$('#break').onchange=()=>{setTimes();loadSelection();};$('#time').onchange=loadSelection;$('#search').onclick=load;$('#sort').onchange=render;document.querySelectorAll('[data-category]').forEach(b=>b.onclick=()=>{category=b.dataset.category;document.querySelectorAll('[data-category]').forEach(c=>{c.setAttribute('aria-pressed',b===c);});render();});$('#close-dialog').onclick=()=>$('#detail').close();$('#detail').onclick=e=>{if(e.target===$('#detail'))$('#detail').close();};initMap();setBreaks();load();
 
 setInterval(()=>{if(!document.hidden && !document.querySelector("dialog[open]"))load();},60000);

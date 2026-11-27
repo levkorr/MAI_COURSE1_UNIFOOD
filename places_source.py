@@ -1,5 +1,6 @@
 """Real OpenStreetMap POIs; no invented fallback locations."""
 import json
+from hashlib import sha256
 import logging
 import math
 import sqlite3
@@ -7,7 +8,7 @@ import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from contextlib import closing
+from contextlib import closing, contextmanager
 from http.client import HTTPException
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -25,8 +26,14 @@ refresh_after = {}
 logger = logging.getLogger(__name__)
 
 
+def bounds_center(points):
+    """Match the center returned by Overpass for ways and relations."""
+    if not points:
+        raise ValueError('Missing OSM geometry')
+    return tuple((min(axis) + max(axis)) / 2 for axis in zip(*points))
+
+
 def relation_center(relation, nodes, ways, relations):
-    """Use the bounding-box center, as Overpass does for a relation."""
     pending = [('relation', relation.attrib['id'])]
     seen = set()
     points = []
@@ -43,9 +50,7 @@ def relation_center(relation, nodes, ways, relations):
             pending.extend((m.attrib['type'], m.attrib['ref']) for m in relations[ref].findall('member'))
         else:
             raise ValueError('Unknown OSM member type')
-    if not points:
-        raise ValueError('Missing relation geometry')
-    return tuple((min(axis) + max(axis)) / 2 for axis in zip(*points))
+    return bounds_center(points)
 
 
 def parse_osm_xml(raw, campus=CAMPUS):
@@ -64,9 +69,7 @@ def parse_osm_xml(raw, campus=CAMPUS):
             lat, lon = nodes[item.attrib['id']]
         elif item.tag == 'way':
             points = [nodes[n.attrib['ref']] for n in item.findall('nd')]
-            if not points:
-                raise ValueError('Missing way geometry')
-            lat, lon = (sum(p[i] for p in points)/len(points) for i in (0, 1))
+            lat, lon = bounds_center(points)
         elif item.tag == 'relation':
             lat, lon = relation_center(item, nodes, ways, relations)
         else:
@@ -145,13 +148,11 @@ class CatalogueChanged(RuntimeError):
     """Another writer published a different catalogue during this refresh."""
 
 
-def read_snapshot(cache):
+def _read_optional(path):
     try:
-        return cache.read_bytes()
+        return path.read_bytes()
     except FileNotFoundError:
         return None
-    except OSError as error:
-        raise RuntimeError(f'Не удалось прочитать каталог {cache.name}: {error}') from error
 
 
 def _replace_bytes(path, content):
@@ -170,19 +171,89 @@ def _replace_bytes(path, content):
                 logger.warning('Не удалось удалить временный файл %s: %s', temporary_path, error)
 
 
+def _remove_audit_journal(journal, *, defer_cleanup):
+    try:
+        journal.unlink()
+    except OSError as error:
+        if not defer_cleanup:
+            raise
+        logger.warning('Не удалось удалить журнал %s: %s', journal.name, error)
+
+
+def _recover_audit(journal, *, defer_cleanup=False):
+    pending = _read_optional(journal)
+    if pending is None:
+        return
+    files = []
+    for name, entry in json.loads(pending).items():
+        if Path(name).name != name or not name.endswith('.json'):
+            raise ValueError('Недопустимое имя файла в журнале сверки')
+        path = journal.with_name(name)
+        files.append((path, entry, _read_optional(path)))
+    # The catalogue is replaced last. Once all target bytes are visible a reader
+    # may already have served them, even if the writer died before journal cleanup.
+    published = all(actual is not None and sha256(actual).hexdigest() == entry['digest']
+                    for _, entry, actual in files)
+    if not published:
+        for path, entry, actual in files:
+            old = bytes.fromhex(entry['before']) if entry['before'] is not None else None
+            if actual == old:
+                continue
+            if old is None:
+                path.unlink()
+            else:
+                _replace_bytes(path, old)
+    _remove_audit_journal(journal, defer_cleanup=defer_cleanup)
+
+
+@contextmanager
+def _catalogue_lock(cache, *, reading=False):
+    # SQLite releases the writer lock even if the auditing process exits.
+    with closing(sqlite3.connect(cache.with_suffix('.lock.sqlite3'), timeout=10)) as lock:
+        lock.execute('BEGIN IMMEDIATE')
+        journal = cache.with_suffix('.lock.sqlite3-audit')
+        _recover_audit(journal, defer_cleanup=reading)
+        yield journal
+
+
+def read_snapshot(cache):
+    try:
+        if cache.with_suffix('.lock.sqlite3-audit').exists():
+            with _catalogue_lock(cache, reading=True):
+                return _read_optional(cache)
+        return _read_optional(cache)
+    except (OSError, sqlite3.Error, ValueError) as error:
+        raise RuntimeError(f'Не удалось прочитать каталог {cache.name}: {error}') from error
+
+
 def replace_catalogue(cache, expected, data, *, audit_files=()):
     """Compare and replace under the same cross-process lock for every writer."""
     content = json.dumps(data, ensure_ascii=False, indent=2).encode('utf-8')
     try:
-        # SQLite releases the writer lock on close, including after process exit.
-        with closing(sqlite3.connect(cache.with_suffix('.lock.sqlite3'), timeout=10)) as lock:
-            lock.execute('BEGIN IMMEDIATE')
-            if read_snapshot(cache) != expected:
+        with _catalogue_lock(cache) as journal:
+            if _read_optional(cache) != expected:
                 raise CatalogueChanged(f'Каталог {cache.name} изменился во время сверки.')
-            for path, artifact in audit_files:
-                _replace_bytes(path, artifact)
-            _replace_bytes(cache, content)
-    except (OSError, sqlite3.Error) as error:
+            if not audit_files:
+                _replace_bytes(cache, content)
+                return
+            files = [*audit_files, (cache, content)]
+            previous = {}
+            for path, artifact in files:
+                if path.parent != cache.parent or path.suffix != '.json' or path.name in previous:
+                    raise ValueError('Ожидались отдельные JSON-файлы рядом с каталогом')
+                original = _read_optional(path)
+                previous[path.name] = dict(before=original.hex() if original is not None else None,
+                                           digest=sha256(artifact).hexdigest())
+            # Record the old contents and intended result before publishing any file.
+            _replace_bytes(journal, json.dumps(previous).encode())
+            try:
+                for path, artifact in files:
+                    _replace_bytes(path, artifact)
+            except OSError:
+                _recover_audit(journal)
+                raise
+            _remove_audit_journal(journal, defer_cleanup=True)
+    except (OSError, sqlite3.Error, ValueError) as error:
         raise RuntimeError(f'Не удалось сохранить каталог {cache.name}: {error}') from error
 
 
@@ -190,12 +261,24 @@ def decode_catalogue(original):
     try:
         cached = json.loads(original)
         if (cached['places'] and isinstance(cached['places'], list)
-                and all(isinstance(p['id'], str) for p in cached['places'])
-                and math.isfinite(cached['fetched_at']) and isinstance(cached['source'], str)):
+                and all(_valid_place(p) for p in cached['places'])
+                and type(cached['fetched_at']) in (int, float) and math.isfinite(cached['fetched_at'])
+                and isinstance(cached['source'], str) and cached['source'].strip()):
             return cached
     except (ValueError, KeyError, TypeError, OverflowError):
         pass
     return None
+
+
+def _valid_place(place):
+    text_fields = ('id', 'name', 'category', 'label', 'icon', 'address', 'hours')
+    if not isinstance(place, dict) or not all(
+            isinstance(place.get(key), str) and place[key].strip() for key in text_fields):
+        return False
+    return (type(place.get('lat')) in (int, float) and -90 <= place['lat'] <= 90
+            and type(place.get('lon')) in (int, float) and -180 <= place['lon'] <= 180
+            and type(place.get('walk')) is int and 1 <= place['walk'] <= 10
+            and type(place.get('distance')) is int and place['distance'] >= 0)
 
 
 def refresh_places(cache, campus, original, cached):

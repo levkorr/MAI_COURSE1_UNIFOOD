@@ -4,17 +4,20 @@ import re
 from collections import defaultdict
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from places_source import CAMPUS
 from universities import UNIVERSITIES
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--university', choices=UNIVERSITIES, default='mai')
-parser.add_argument('--input', default=str(Path(__file__).with_name('osm-schematic.xml')))
+parser.add_argument('--input', type=Path, help='OSM XML covering the selected campus')
 args = parser.parse_args()
 CAMPUS = UNIVERSITIES[args.university]['campus']
 
-root = ET.parse(args.input).getroot()
+default_inputs = {'mai': 'osm-schematic.xml', 'mgsu': '.tools/mgsu-area.osm'}
+input_path = args.input or Path(__file__).parent / default_inputs[args.university]
+if not input_path.is_file():
+    parser.error(f'Provide --input with an OSM extract for {args.university}. File missing: {input_path}')
+root = ET.parse(input_path).getroot()
 nodes = {n.attrib['id']: (float(n.attrib['lat']), float(n.attrib['lon'])) for n in root.findall('node')}
 
 
@@ -40,6 +43,9 @@ for way in root.findall('way'):
     widths = {'trunk':15,'primary':13,'secondary':10,'tertiary':8,'residential':5,'unclassified':5,'living_street':4,'service':2.5}
     if highway in widths:
         streets.append((widths[highway],path))
+
+if not (parks or buildings or streets):
+    parser.error(f'No drawable map features around {args.university} in {input_path}')
 
 def combine(paths, attributes):
     geometry = ' '.join(re.search(r'd="([^"]+)"', path).group(1) for path in paths)
