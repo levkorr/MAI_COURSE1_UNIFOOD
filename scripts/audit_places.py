@@ -7,13 +7,44 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from places_source import parse, distance
+from places_source import parse, distance, read_snapshot, replace_catalogue
+
+
+MCP_FILTERS = ('amenity=cafe', 'amenity=fast_food', 'amenity=restaurant',
+               'shop=supermarket', 'shop=convenience', 'shop=bakery')
+
+
+def parse_mcp_catalogue(responses, campus):
+    """Build a catalogue from six decoded osm_query_bbox response payloads."""
+    elements = {}
+    for tag_filter in MCP_FILTERS:
+        payload = responses.get(tag_filter)
+        if (not isinstance(payload, dict) or payload.get('complete') is not True
+                or payload.get('remark') or not isinstance(payload.get('elements'), list)):
+            raise ValueError(f'Неподтверждённая выборка MCP: {tag_filter}')
+        for item in payload['elements']:
+            kind = item['type']
+            if kind not in ('node', 'way', 'relation'):
+                raise ValueError(f'Неизвестный тип OSM: {kind}')
+            osm_id = int(item['id'])
+            point = item['location'] if kind == 'node' else item['center']
+            element = dict(type=kind, id=osm_id, lat=point['latitude'], lon=point['longitude'],
+                           tags=item.get('tags', {}))
+            key = (kind, osm_id)
+            if key in elements and elements[key] != element:
+                raise ValueError(f'Расходятся данные об объекте {kind}/{osm_id}')
+            elements[key] = element
+    places = parse(elements.values(), campus)
+    if not places:
+        raise ValueError('Выборка MCP дала пустой каталог')
+    return places
 
 
 def main():
     raw = json.loads((ROOT / 'osm-places-audit-input.json').read_text(encoding='utf-8'))
     cache_path = ROOT / 'places-cache.json'
-    cached = json.loads(cache_path.read_text(encoding='utf-8'))
+    original = read_snapshot(cache_path)
+    cached = json.loads(original)
     fresh = parse(raw['elements'])
     old_by_id = {p['id']: p for p in cached['places']}
     new_by_id = {p['id']: p for p in fresh}
@@ -50,12 +81,11 @@ def main():
                   restricted=[p for p in details if p['access'] in ('private', 'no')],
                   unnamed_excluded=unnamed, places=details,
                   limitation='Comparison with the current OSM mirror; business operation and opening hours are not independently confirmed. Walking times are estimates. The mirror updates daily.')
-    (ROOT / 'places-audit.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
-    # Refresh only after the complete catalogue has been compared successfully.
-    cache_path.with_suffix('.before-audit.json').write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding='utf-8')
-    cached.update(places=fresh, fetched_at=datetime.fromisoformat(raw['queried_at'].replace('Z', '+00:00')).timestamp(),
-                  source=raw['source'])
-    cache_path.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding='utf-8')
+    updated = dict(cached, places=fresh, fetched_at=datetime.fromisoformat(raw['queried_at'].replace('Z', '+00:00')).timestamp(),
+                   source=raw['source'])
+    audit_files = [(cache_path.with_suffix('.before-audit.json'), original),
+                   (ROOT / 'places-audit.json', json.dumps(report, ensure_ascii=False, indent=2).encode('utf-8'))]
+    replace_catalogue(cache_path, original, updated, audit_files=audit_files)
     print(json.dumps({k: v for k, v in report.items() if k not in ('places', 'unnamed_excluded')}, ensure_ascii=False, indent=2))
     print('Unnamed excluded:', len(unnamed))
 
