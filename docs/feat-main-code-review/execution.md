@@ -30,3 +30,5 @@
 ## Сопровождение PR №6
 
 28 ноября 2026 года независимый SDLC-проход сверил все 14 исправлений в коммите `f333353c66b22f5e78e43dfd65f621fe96e181c7` относительно `main` на `b6dd22b`. Блокирующих замечаний не обнаружено. В GitHub Actions успешно завершилась проверка `Application and browser tests` на Ubuntu. На момент проверки GitHub показывал `CLEAN`, открытых обсуждений и запросов на ревью было 0. Пользователь выбрал передачу открытого PR для слияния. [Проверенный запуск CI](https://github.com/levkorr/MAI_COURSE1_UNIFOOD/actions/runs/46079787560) · [Проверки текущей версии PR](https://github.com/levkorr/MAI_COURSE1_UNIFOOD/pull/6/checks)
+
+28 ноября 2026 года в 02:03 МСК PR №6 вошёл в `main` коммитом `9709507`. На последнем коммите ветки `6216b7e` прошла проверка `Application and browser tests`. После слияния GitHub подтвердил статус `MERGED`. [PR №6](https://github.com/levkorr/MAI_COURSE1_UNIFOOD/pull/6) · [Коммит слияния](https://github.com/levkorr/MAI_COURSE1_UNIFOOD/commit/970950704f1a215ca4a586fa46ee883b9c0aff7d) · [Итоговый запуск CI](https://github.com/levkorr/MAI_COURSE1_UNIFOOD/actions/runs/46079933648)
