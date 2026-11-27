@@ -14,8 +14,9 @@ configured_db = os.environ.get('REPORT_DB')
 app.config['REPORT_DB'] = str(Path(__file__).with_name('reports.sqlite3'))
 if configured_db is not None:
     path = absolute_path(configured_db)
-    with database(path, existing=True):
-        pass
+    with database(path, existing=True, write=True) as db:
+        # Opening an existing SQLite file can fall back to read-only access.
+        db.execute('UPDATE visit_plans SET slot=slot WHERE 0')
     app.config['REPORT_DB'] = str(path)
 PEOPLE_RANGES = ('0-5', '5-10', '10-15', '15-20')
 REPORT_LIFETIME = 30 * 60
@@ -50,8 +51,8 @@ def remember_visitor(response):
 
 
 @contextmanager
-def report_database():
-    with database(app.config['REPORT_DB'], existing=configured_db is not None) as db:
+def report_database(*, write=False):
+    with database(app.config['REPORT_DB'], existing=configured_db is not None, write=write) as db:
         yield db
 
 
@@ -166,7 +167,7 @@ def plan_visit():
     if not isinstance(place_id, str) or not any(p['id'] == place_id for p in data['places']):
         return jsonify(error='Заведение не найдено'), 404
     today = g.visit_date
-    with report_database() as db:
+    with report_database(write=True) as db:
         db.execute('INSERT INTO visit_plans (visitor_id, visit_date, place_id, slot, university) VALUES (?, ?, ?, ?, ?) '
                    'ON CONFLICT(visitor_id, visit_date) DO UPDATE SET place_id=excluded.place_id, slot=excluded.slot, university=excluded.university',
                    (g.visitor_id, today, place_id, payload['time'], g.university))
@@ -175,7 +176,7 @@ def plan_visit():
 
 @app.delete('/api/plans')
 def cancel_plan():
-    with report_database() as db:
+    with report_database(write=True) as db:
         db.execute('DELETE FROM visit_plans WHERE visitor_id=? AND visit_date=? AND university=?',
                    (g.visitor_id, g.visit_date, g.university))
     return jsonify(my_plan=None)
@@ -194,7 +195,7 @@ def check_in():
     if not isinstance(place_id, str) or not any(p['id'] == place_id for p in data['places']):
         return jsonify(error='Заведение не найдено'), 404
     observed_at = time.time()
-    with report_database() as db:
+    with report_database(write=True) as db:
         db.execute('INSERT INTO visitor_observations (place_id, people_range, observed_at) VALUES (?, ?, ?)',
                    (place_id, payload['people_range'], observed_at))
         observations = active_observations(db).get(place_id, [])

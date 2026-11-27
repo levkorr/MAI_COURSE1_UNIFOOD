@@ -1,5 +1,6 @@
 """Real OpenStreetMap POIs; no invented fallback locations."""
 import json
+from hashlib import sha256
 import logging
 import math
 import sqlite3
@@ -170,37 +171,55 @@ def _replace_bytes(path, content):
                 logger.warning('Не удалось удалить временный файл %s: %s', temporary_path, error)
 
 
-def _restore_audit(journal):
+def _remove_audit_journal(journal, *, defer_cleanup):
+    try:
+        journal.unlink()
+    except OSError as error:
+        if not defer_cleanup:
+            raise
+        logger.warning('Не удалось удалить журнал %s: %s', journal.name, error)
+
+
+def _recover_audit(journal, *, defer_cleanup=False):
     pending = _read_optional(journal)
     if pending is None:
         return
-    for name, previous in json.loads(pending).items():
+    files = []
+    for name, entry in json.loads(pending).items():
         if Path(name).name != name or not name.endswith('.json'):
             raise ValueError('Недопустимое имя файла в журнале сверки')
         path = journal.with_name(name)
-        old_bytes = bytes.fromhex(previous) if previous is not None else None
-        if _read_optional(path) != old_bytes:
-            if old_bytes is None:
+        files.append((path, entry, _read_optional(path)))
+    # The catalogue is replaced last. Once all target bytes are visible a reader
+    # may already have served them, even if the writer died before journal cleanup.
+    published = all(actual is not None and sha256(actual).hexdigest() == entry['digest']
+                    for _, entry, actual in files)
+    if not published:
+        for path, entry, actual in files:
+            old = bytes.fromhex(entry['before']) if entry['before'] is not None else None
+            if actual == old:
+                continue
+            if old is None:
                 path.unlink()
             else:
-                _replace_bytes(path, old_bytes)
-    journal.unlink()
+                _replace_bytes(path, old)
+    _remove_audit_journal(journal, defer_cleanup=defer_cleanup)
 
 
 @contextmanager
-def _catalogue_lock(cache):
+def _catalogue_lock(cache, *, reading=False):
     # SQLite releases the writer lock even if the auditing process exits.
     with closing(sqlite3.connect(cache.with_suffix('.lock.sqlite3'), timeout=10)) as lock:
         lock.execute('BEGIN IMMEDIATE')
         journal = cache.with_suffix('.lock.sqlite3-audit')
-        _restore_audit(journal)
+        _recover_audit(journal, defer_cleanup=reading)
         yield journal
 
 
 def read_snapshot(cache):
     try:
         if cache.with_suffix('.lock.sqlite3-audit').exists():
-            with _catalogue_lock(cache):
+            with _catalogue_lock(cache, reading=True):
                 return _read_optional(cache)
         return _read_optional(cache)
     except (OSError, sqlite3.Error, ValueError) as error:
@@ -219,21 +238,21 @@ def replace_catalogue(cache, expected, data, *, audit_files=()):
                 return
             files = [*audit_files, (cache, content)]
             previous = {}
-            for path, _ in files:
+            for path, artifact in files:
                 if path.parent != cache.parent or path.suffix != '.json' or path.name in previous:
                     raise ValueError('Ожидались отдельные JSON-файлы рядом с каталогом')
                 original = _read_optional(path)
-                previous[path.name] = original.hex() if original is not None else None
-            # The undo journal must exist before changing the first public file.
-            # Removing it commits the group. The next reader/writer recovers after a crash.
+                previous[path.name] = dict(before=original.hex() if original is not None else None,
+                                           digest=sha256(artifact).hexdigest())
+            # Record the old contents and intended result before publishing any file.
             _replace_bytes(journal, json.dumps(previous).encode())
             try:
                 for path, artifact in files:
                     _replace_bytes(path, artifact)
-                journal.unlink()
             except OSError:
-                _restore_audit(journal)
+                _recover_audit(journal)
                 raise
+            _remove_audit_journal(journal, defer_cleanup=True)
     except (OSError, sqlite3.Error, ValueError) as error:
         raise RuntimeError(f'Не удалось сохранить каталог {cache.name}: {error}') from error
 

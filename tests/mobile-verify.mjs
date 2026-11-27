@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
-import {mkdtemp} from 'node:fs/promises';
+import {mkdtemp, readFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function until(check, label) {
@@ -18,17 +18,44 @@ const windows = process.platform === 'win32';
 const python = process.env.UNIFOOD_TEST_PYTHON ?? (windows ? '.venv/Scripts/python.exe' : 'python3');
 const chromeBinary = process.env.UNIFOOD_TEST_CHROME ??
   (windows ? 'C:/Program Files/Google/Chrome/Application/chrome.exe' : 'google-chrome');
-const server = spawn(python, ['tests/mobile-verify-server.py'], {windowsHide: true, stdio: 'inherit'});
-const origin = 'http://127.0.0.1:5059';
-const profile = await mkdtemp(join(tmpdir(), 'unifood-mobile-'));
+const scratch = await mkdtemp(join(resolve(tmpdir()), 'unifood-mobile-'));
+const profile = join(scratch, 'chrome');
+const server = spawn(python, ['tests/mobile-verify-server.py', scratch], {windowsHide: true, stdio: 'inherit'});
 const chrome = spawn(chromeBinary,
-  ['--headless=new', '--remote-debugging-port=9228', '--no-first-run', '--user-data-dir=' + profile, 'about:blank'],
+  ['--headless=new', '--remote-debugging-port=0', '--no-first-run', '--user-data-dir=' + profile, 'about:blank'],
   {windowsHide: true, stdio: 'ignore'});
+function watchChild(child, name) {
+  let failure;
+  const closed = new Promise(resolve => child.once('close', resolve));
+  child.once('error', error => { failure = error; });
+  return {
+    async readPortFile(file) {
+      return until(async () => {
+        if (failure) throw failure;
+        if (child.exitCode !== null || child.signalCode !== null) throw Error(name + ' stopped during startup');
+        try { return await readFile(file, 'utf8'); }
+        catch (error) { if (error.code !== 'ENOENT') throw error; }
+      }, name);
+    },
+    async stop() {
+      if (child.pid && child.exitCode === null && child.signalCode === null) child.kill();
+      await closed;
+    },
+  };
+}
+const flaskProcess = watchChild(server, 'Flask');
+const chromeProcess = watchChild(chrome, 'Chrome');
 let socket;
 try {
-  await until(async () => (await fetch(origin).catch(() => null))?.ok, 'Flask');
+  const port = await flaskProcess.readPortFile(join(scratch, 'flask-port'));
+  const origin = 'http://127.0.0.1:' + port.trim();
+  const activePort = await chromeProcess.readPortFile(join(profile, 'DevToolsActivePort'));
+  const [chromePort, debuggerPath] = activePort.trim().split(/\r?\n/);
+  const debuggerOrigin = 'http://127.0.0.1:' + chromePort;
+  const version = await fetch(debuggerOrigin + '/json/version').then(response => response.json());
+  assert.equal(new URL(version.webSocketDebuggerUrl).pathname, debuggerPath);
   const target = await until(async () => {
-    const tabs = await fetch('http://127.0.0.1:9228/json/list').then(response => response.json()).catch(() => []);
+    const tabs = await fetch(debuggerOrigin + '/json/list').then(response => response.json());
     return tabs.find(tab => tab.type === 'page');
   }, 'Chrome');
   socket = new WebSocket(target.webSocketDebuggerUrl);
@@ -89,6 +116,51 @@ try {
   await viewport(320);
   await send('Page.navigate', {url: origin});
   await until(ready, 'initial results');
+  const firstId = await run("document.querySelector('.place-title').dataset.detail");
+  await run("document.querySelector('.place-title').focus(); load(); true");
+  await until(ready, 'refreshed cards');
+  assert.equal(await run('document.activeElement.dataset.detail'), firstId);
+  await tap('[data-save]');
+  assert.equal(await run("document.querySelector('#fav-count').textContent"), '1');
+  await select('#time', "'12:30'");
+  await until(ready, 'MAI plan time');
+  // Delay delivery of a real POST response until another campus's details are open.
+  await run(`(() => {
+    const realFetch = window.fetch.bind(window);
+    const gate = new Promise(resolve => { window.releasePlan = resolve; });
+    window.fetch = async (...args) => {
+      const response = await realFetch(...args);
+      if (args[1]?.method === 'POST' && String(args[0]).startsWith('/api/plans?')) {
+        window.fetch = realFetch;
+        window.planStatusCode = response.status;
+        await gate;
+      }
+      return response;
+    };
+    const button = document.querySelector('[data-plan]:enabled');
+    const savePlan = button.onclick;
+    button.onclick = () => savePlan().finally(() => { window.planSettled = true; });
+  })()`);
+  await tap('.card [data-plan]:enabled');
+  await until(() => run('window.planStatusCode === 201'), 'plan written to MAI');
+  await select('#university', "'mgsu'");
+  await until(ready, 'other campus');
+  assert.equal(await run("document.querySelector('#fav-count').textContent"), '0');
+  await select('#break', "'1'");
+  await until(ready, 'future MGSU slot');
+  await tap('.place-title');
+  assert.equal(await run("document.querySelector('#detail-check-in').disabled"), true);
+  await run('window.releasePlan(); true');
+  await until(() => run('window.planSettled'), 'delayed plan response');
+  assert.equal(await visible('#detail[open]'), true);
+  assert.equal(await run("document.querySelector('#plan-status').textContent"), '');
+  assert.equal(await run("document.querySelector('#detail-check-in').disabled"), false);
+  await tap('#close-dialog');
+  await select('#university', "'mai'");
+  await until(ready, 'return to MAI');
+  assert.equal(await run("document.querySelector('#fav-count').textContent"), '1');
+  await tap('[data-save][aria-pressed=true]');
+  console.log('Delayed plan stays in MAI, campus favorites and keyboard focus survive refresh');
   for (const width of [320, 375, 430]) {
     await viewport(width);
     assert.equal(await run('innerWidth'), width);
@@ -198,11 +270,13 @@ try {
     await until(() => run("document.querySelector('#check-in-status').textContent.includes('Сообщение сохранено')"), 'check-in saved');
     await tap('.check-in-close');
     assert.equal(await run(`[...document.querySelectorAll('#cards .kit-place-card')].find(card => card.querySelector('[data-detail]').dataset.detail === ${JSON.stringify(placeId)}).querySelector('[data-place-status]').textContent.includes('7.5')`), true);
+    assert.equal(await run("document.querySelector('#cards .place-title').dataset.detail"), placeId);
     assert.deepEqual(errors, []);
     console.log(width + 'px: shared place card and real check-in submission');
   }
 } finally {
   socket?.close();
-  chrome.kill();
-  server.kill();
+  await Promise.all([chromeProcess.stop(), flaskProcess.stop()]);
+  assert.equal(dirname(scratch), resolve(tmpdir()));
+  await rm(scratch, {recursive:true, force:true, maxRetries:10, retryDelay:150});
 }

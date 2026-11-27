@@ -89,6 +89,19 @@ class DataPersistenceTest(unittest.TestCase):
         self.assertEqual(self.api('expired'), [None, 0, plan, 1, None, True])
         self.assertEqual(self.api('update'), [201, [0, 1], 200, None])
 
+    def test_explicit_path_rejects_read_only_connection_after_migration(self):
+        self.init_db()
+        result = self.python('-c', '''
+import sqlite3
+from unittest.mock import patch
+connect = sqlite3.connect
+def open_readonly(path, **options):
+    return connect(path.replace('?mode=rw', '?mode=ro'), **options)
+with patch.object(sqlite3, 'connect', open_readonly):
+    import app
+''', succeeds=False)
+        self.assertIn('readonly', result.stderr.lower())
+
     def test_legacy_database_copy_preserves_records(self):
         old_path = self.db.with_name('old.sqlite3')
         with closing(sqlite3.connect(old_path)) as old, closing(sqlite3.connect(self.db)) as copied:

@@ -1,10 +1,12 @@
+import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
-from app import app, MOSCOW
+from tests.isolated_app import app, MOSCOW
 
 
 class VisitPlansTest(unittest.TestCase):
@@ -51,6 +53,13 @@ class VisitPlansTest(unittest.TestCase):
         self.assertEqual(self.counts(), [2, 0])
         self.assertEqual(self.counts('12:20'), [1, 0])
         self.assertEqual(self.counts('12:45'), [0, 0])
+
+    def test_catalogue_reads_committed_plans_while_another_writer_is_active(self):
+        self.assertEqual(self.plan(self.a).status_code, 201)
+        with closing(sqlite3.connect(app.config['REPORT_DB'])) as writer:
+            writer.execute('BEGIN IMMEDIATE')
+            writer.execute('DELETE FROM visit_plans')
+            self.assertEqual(self.counts(), [1, 0])
 
     def test_repeat_replaces_and_cancel_affects_only_owner(self):
         self.plan(self.a)

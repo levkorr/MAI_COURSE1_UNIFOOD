@@ -11,7 +11,7 @@ from threading import Event
 from unittest.mock import patch
 
 import places_source as places
-from app import app
+from tests.isolated_app import app
 from scripts import audit_places
 from scripts.audit_places import MCP_FILTERS, parse_mcp_catalogue
 
@@ -237,6 +237,18 @@ p.replace_catalogue(cache, cache.read_bytes(), {}, audit_files=[(backup, b'new b
         self.assertEqual(places.read_snapshot(self.cache), self.original)
         self.assertEqual(backup.read_bytes(), b'older catalogue')
         self.assertEqual(report.read_bytes(), b'older report')
+
+    def test_failed_journal_cleanup_keeps_published_version_for_readers(self):
+        report = self.cache.with_name('places-audit.json')
+        report.write_bytes(b'previous report')
+        with patch.object(Path, 'unlink', side_effect=PermissionError('journal busy')):
+            with self.assertLogs('places_source', level='WARNING'):
+                places.replace_catalogue(self.cache, self.original, self.fresh,
+                                         audit_files=[(report, b'new report')])
+                self.assertEqual(json.loads(places.read_snapshot(self.cache)), self.fresh)
+        self.assertEqual(json.loads(places.read_snapshot(self.cache)), self.fresh)
+        self.assertEqual(report.read_bytes(), b'new report')
+        self.assertFalse(self.cache.with_suffix('.lock.sqlite3-audit').exists())
 
 
 class SchematicTest(unittest.TestCase):

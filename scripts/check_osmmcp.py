@@ -68,6 +68,10 @@ try:
     print(json.dumps(version, ensure_ascii=False))
     if version.get('isError'):
         raise RuntimeError('Version query failed')
+    version_text = next((item['text'] for item in version.get('content', []) if item.get('type') == 'text'), '{}')
+    actual_version = json.loads(version_text).get('version')
+    if actual_version != '0.1.2-bbox-complete':
+        raise RuntimeError(f'Expected osmmcp 0.1.2-bbox-complete, got {actual_version!r}')
     if args.offline:
         raise SystemExit(0)
     result = call(4, 'tools/call', dict(name='find_nearby_places', arguments=dict(latitude=55.8104364, longitude=37.4983111, radius=700, category='cafe', limit=5)))

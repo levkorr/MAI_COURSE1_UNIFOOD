@@ -34,7 +34,7 @@ def prepare_schema(db):
 
 
 @contextmanager
-def database(path, *, existing=False):
+def database(path, *, existing=False, write=False):
     # SQLite's mode=rw also prevents recreation if the mounted file disappears later.
     target = Path(path).as_uri() + '?mode=rw' if existing else path
     try:
@@ -43,8 +43,14 @@ def database(path, *, existing=False):
         raise sqlite3.OperationalError(f'Cannot open SQLite database {path}: {error}') from error
     with closing(connection) as db, db:
         db.row_factory = sqlite3.Row
-        db.execute('BEGIN IMMEDIATE')
-        prepare_schema(db)
+        if db.execute('PRAGMA user_version').fetchone()[0] == 0:
+            with db:
+                db.execute('BEGIN IMMEDIATE')
+                # A different connection may have migrated the file while we waited.
+                if db.execute('PRAGMA user_version').fetchone()[0] == 0:
+                    prepare_schema(db)
+                    db.execute('PRAGMA user_version = 1')
+        db.execute('BEGIN IMMEDIATE' if write else 'BEGIN')
         yield db
 
 
