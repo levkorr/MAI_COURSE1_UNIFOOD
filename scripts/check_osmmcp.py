@@ -60,7 +60,7 @@ try:
     send(dict(jsonrpc='2.0', method='notifications/initialized'))
     tools = call(2, 'tools/list', {})['tools']
     print('Tools:', ', '.join(tool['name'] for tool in tools))
-    required = {'get_version', 'geocode_address', 'find_nearby_places'}
+    required = {'get_version', 'geocode_address', 'find_nearby_places', 'osm_query_bbox'}
     missing = required - {tool['name'] for tool in tools}
     if missing:
         raise RuntimeError(f'Missing tools: {sorted(missing)}')
@@ -86,6 +86,8 @@ try:
     if bbox_result.get('isError'):
         raise RuntimeError(f'Bounding-box query failed; see {log_path}')
     bbox_payload = json.loads(next(item['text'] for item in bbox_result['content'] if item['type'] == 'text'))
+    if bbox_payload.get('complete') is not True:
+        raise RuntimeError('MCP did not confirm a complete bounding-box response')
     if not bbox_payload.get('elements'):
         raise RuntimeError('Expected cafe elements in MAI bounding box')
     print('Verified nearby cafes and bounding-box query')

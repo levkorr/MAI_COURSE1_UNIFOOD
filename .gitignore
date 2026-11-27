@@ -2,4 +2,5 @@
 __pycache__/
 server*.log
 reports.sqlite3*
+/places-cache*.lock.sqlite3*
 .tools/

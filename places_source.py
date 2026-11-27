@@ -1,10 +1,14 @@
 """Real OpenStreetMap POIs; no invented fallback locations."""
 import json
+import logging
 import math
+import sqlite3
 import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+from contextlib import closing
+from http.client import HTTPException
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from threading import Lock, Thread
@@ -15,25 +19,56 @@ CACHE = Path(__file__).with_name('places-cache.json')
 ENDPOINTS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']
 CACHE_TTL = 86400
 RETRY_DELAY = 300
+XML_SOURCE = 'OpenStreetMap API'
 refresh_lock = Lock()
 refresh_after = {}
+logger = logging.getLogger(__name__)
+
+
+def relation_center(relation, nodes, ways, relations):
+    """Use the bounding-box center, as Overpass does for a relation."""
+    pending = [('relation', relation.attrib['id'])]
+    seen = set()
+    points = []
+    while pending:
+        kind, ref = pending.pop()
+        if (kind, ref) in seen:
+            continue
+        seen.add((kind, ref))
+        if kind == 'node':
+            points.append(nodes[ref])
+        elif kind == 'way':
+            pending.extend(('node', nd.attrib['ref']) for nd in ways[ref].findall('nd'))
+        elif kind == 'relation':
+            pending.extend((m.attrib['type'], m.attrib['ref']) for m in relations[ref].findall('member'))
+        else:
+            raise ValueError('Unknown OSM member type')
+    if not points:
+        raise ValueError('Missing relation geometry')
+    return tuple((min(axis) + max(axis)) / 2 for axis in zip(*points))
 
 
 def parse_osm_xml(raw, campus=CAMPUS):
     root = ET.fromstring(raw)
     nodes = {n.attrib['id']: (float(n.attrib['lat']), float(n.attrib['lon'])) for n in root.findall('node')}
+    ways = {w.attrib['id']: w for w in root.findall('way')}
+    relations = {r.attrib['id']: r for r in root.findall('relation')}
     elements = []
     for item in root:
         tags = {t.attrib['k']: t.attrib['v'] for t in item.findall('tag')}
         if tags.get('amenity') not in ('cafe', 'fast_food', 'restaurant') and tags.get('shop') not in ('supermarket', 'convenience', 'bakery'):
             continue
+        if not (tags.get('name:ru') or tags.get('name') or tags.get('brand')):
+            continue
         if item.tag == 'node':
             lat, lon = nodes[item.attrib['id']]
         elif item.tag == 'way':
-            points = [nodes[n.attrib['ref']] for n in item.findall('nd') if n.attrib['ref'] in nodes]
+            points = [nodes[n.attrib['ref']] for n in item.findall('nd')]
             if not points:
-                continue
+                raise ValueError('Missing way geometry')
             lat, lon = (sum(p[i] for p in points)/len(points) for i in (0, 1))
+        elif item.tag == 'relation':
+            lat, lon = relation_center(item, nodes, ways, relations)
         else:
             continue
         elements.append(dict(type=item.tag, id=int(item.attrib['id']), lat=lat, lon=lon, tags=tags))
@@ -86,10 +121,12 @@ def fetch_places(campus):
             req = urllib.request.Request(endpoint, data=urllib.parse.urlencode({'data': query}).encode(), headers={'User-Agent': 'MezhduParamiPrototype/1.0'})
             with urllib.request.urlopen(req, timeout=27) as response:
                 payload = json.load(response)
+            if not isinstance(payload, dict) or payload.get('remark') or not isinstance(payload.get('elements'), list):
+                continue
             places = parse(payload['elements'], campus)
-            if places and not payload.get('remark'):
+            if places:
                 return dict(places=places, fetched_at=time.time(), source='OpenStreetMap / Overpass')
-        except (OSError, ValueError, KeyError):
+        except (OSError, HTTPException, ValueError, KeyError, TypeError):
             continue
     try:
         lat, lon = campus
@@ -98,34 +135,88 @@ def fetch_places(campus):
         with urllib.request.urlopen(req, timeout=30) as response:
             real_places = parse_osm_xml(response.read(), campus)
         if real_places:
-            return dict(places=real_places, fetched_at=time.time(), source='OpenStreetMap API')
-    except (OSError, ValueError, KeyError, ET.ParseError):
+            return dict(places=real_places, fetched_at=time.time(), source=XML_SOURCE)
+    except (OSError, HTTPException, ValueError, KeyError, ET.ParseError):
         pass
     raise RuntimeError('Не удалось загрузить заведения. Повторите запрос позже.')
 
 
-def refresh_places(cache, campus):
-    data = fetch_places(campus)
+class CatalogueChanged(RuntimeError):
+    """Another writer published a different catalogue during this refresh."""
+
+
+def read_snapshot(cache):
+    try:
+        return cache.read_bytes()
+    except FileNotFoundError:
+        return None
+    except OSError as error:
+        raise RuntimeError(f'Не удалось прочитать каталог {cache.name}: {error}') from error
+
+
+def _replace_bytes(path, content):
     temporary_path = None
     try:
-        with NamedTemporaryFile(mode='w', encoding='utf-8', dir=cache.parent, delete=False) as temporary:
+        with NamedTemporaryFile(dir=path.parent, delete=False) as temporary:
             temporary_path = Path(temporary.name)
-            json.dump(data, temporary, ensure_ascii=False, indent=2)
-        temporary_path.replace(cache)
-    except OSError:
+            temporary.write(content)
+        temporary_path.replace(path)
+        temporary_path = None
+    finally:
         if temporary_path is not None:
             try:
                 temporary_path.unlink(missing_ok=True)
-            except OSError:
-                pass
+            except OSError as error:
+                logger.warning('Не удалось удалить временный файл %s: %s', temporary_path, error)
+
+
+def replace_catalogue(cache, expected, data, *, audit_files=()):
+    """Compare and replace under the same cross-process lock for every writer."""
+    content = json.dumps(data, ensure_ascii=False, indent=2).encode('utf-8')
+    try:
+        # SQLite releases the writer lock on close, including after process exit.
+        with closing(sqlite3.connect(cache.with_suffix('.lock.sqlite3'), timeout=10)) as lock:
+            lock.execute('BEGIN IMMEDIATE')
+            if read_snapshot(cache) != expected:
+                raise CatalogueChanged(f'Каталог {cache.name} изменился во время сверки.')
+            for path, artifact in audit_files:
+                _replace_bytes(path, artifact)
+            _replace_bytes(cache, content)
+    except (OSError, sqlite3.Error) as error:
+        raise RuntimeError(f'Не удалось сохранить каталог {cache.name}: {error}') from error
+
+
+def decode_catalogue(original):
+    try:
+        cached = json.loads(original)
+        if (cached['places'] and isinstance(cached['places'], list)
+                and all(isinstance(p['id'], str) for p in cached['places'])
+                and math.isfinite(cached['fetched_at']) and isinstance(cached['source'], str)):
+            return cached
+    except (ValueError, KeyError, TypeError, OverflowError):
+        pass
+    return None
+
+
+def refresh_places(cache, campus, original, cached):
+    data = fetch_places(campus)
+    if cached is not None:
+        if data['source'] == XML_SOURCE:
+            received = {p['id'] for p in data['places']}
+            if any(p['id'].startswith('relation/') and p['id'] not in received for p in cached['places']):
+                raise RuntimeError('Резервный ответ OSM не подтвердил ранее сохранённые отношения.')
+        data = {**cached, **data}
+    replace_catalogue(cache, original, data)
     return data
 
 
-def refresh_in_background(cache, campus):
+def refresh_in_background(cache, campus, original, cached):
     try:
-        refresh_places(cache, campus)
-    except RuntimeError:
+        refresh_places(cache, campus, original, cached)
+    except CatalogueChanged:
         pass
+    except RuntimeError as error:
+        logger.warning('Фоновое обновление %s: %s', cache.name, error)
     finally:
         with refresh_lock:
             refresh_after[cache] = time.monotonic() + RETRY_DELAY
@@ -134,24 +225,33 @@ def refresh_in_background(cache, campus):
 def get_places(university='mai', *, background=True):
     campus = UNIVERSITIES[university]['campus']
     cache = CACHE if university == 'mai' else CACHE.with_name(f'places-cache-{university}.json')
-    try:
-        cached = json.loads(cache.read_text(encoding='utf-8'))
-        if not cached['places']:
-            raise ValueError('Empty catalogue')
-        stale = time.time() - cached['fetched_at'] >= CACHE_TTL
-    except (OSError, ValueError, KeyError, TypeError):
-        return refresh_places(cache, campus), False
-    if stale:
-        if not background:
-            try:
-                return refresh_places(cache, campus), False
-            except RuntimeError:
-                return cached, True
+    original = read_snapshot(cache)
+    cached = decode_catalogue(original)
+    if cached is not None and time.time() - cached['fetched_at'] < CACHE_TTL:
+        return cached, False
+    if cached is not None and background:
         with refresh_lock:
             if time.monotonic() >= refresh_after.get(cache, 0):
-                refresh_after[cache] = float('inf')
-                Thread(target=refresh_in_background, args=(cache, campus), daemon=True).start()
-    return cached, stale
+                try:
+                    Thread(target=refresh_in_background, args=(cache, campus, original, cached), daemon=True).start()
+                except RuntimeError as error:
+                    refresh_after[cache] = time.monotonic() + RETRY_DELAY
+                    logger.warning('Не удалось запустить обновление %s: %s', cache.name, error)
+                else:
+                    refresh_after[cache] = float('inf')
+        return cached, True
+    try:
+        return refresh_places(cache, campus, original, cached), False
+    except CatalogueChanged:
+        current = decode_catalogue(read_snapshot(cache))
+        if current is None:
+            raise
+        return current, time.time() - current['fetched_at'] >= CACHE_TTL
+    except RuntimeError as error:
+        if cached is None:
+            raise
+        logger.warning('Обновление %s: %s', cache.name, error)
+        return cached, True
 
 
 if __name__ == '__main__':

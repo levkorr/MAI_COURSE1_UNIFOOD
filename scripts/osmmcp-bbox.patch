@@ -1,0 +1,103 @@
+--- a/pkg/tools/osm_query_tools.go
++++ b/pkg/tools/osm_query_tools.go
+@@ -86,6 +86,7 @@
+ // OSMQueryBBoxOutput defines the output for OSM query results
+ type OSMQueryBBoxOutput struct {
+ 	Elements []OSMElement `json:"elements"`
++	Complete bool         `json:"complete"`
+ }
+ 
+ // OSMQueryBBoxTool returns a tool definition for querying OSM data by bounding box
+@@ -235,6 +236,7 @@
+ 
+ 	// Parse response
+ 	var overpassResp struct {
++		Remark   string `json:"remark"`
+ 		Elements []struct {
+ 			ID     int     `json:"id"`
+ 			Type   string  `json:"type"`
+@@ -252,10 +254,17 @@
+ 		logger.Error("failed to decode response", "error", err)
+ 		return ErrorResponse("Failed to parse Overpass API response"), nil
+ 	}
++	if overpassResp.Remark != "" {
++		return ErrorResponse("Incomplete Overpass response: " + overpassResp.Remark), nil
++	}
++	if overpassResp.Elements == nil {
++		return ErrorResponse("Incomplete Overpass response: missing elements array"), nil
++	}
+ 
+ 	// Convert to output format
+ 	output := OSMQueryBBoxOutput{
+ 		Elements: make([]OSMElement, len(overpassResp.Elements)),
++		Complete: true,
+ 	}
+ 
+ 	for i, element := range overpassResp.Elements {
+--- /dev/null
++++ b/pkg/tools/bbox_completeness_test.go
+@@ -0,0 +1,64 @@
++package tools
++
++import (
++	"context"
++	"encoding/json"
++	"io"
++	"net/http"
++	"strings"
++	"testing"
++
++	"github.com/NERVsystems/osmmcp/pkg/osm"
++	"github.com/mark3labs/mcp-go/mcp"
++)
++
++func TestBBoxCompleteness(t *testing.T) {
++	ctx := context.Background()
++	client := osm.GetClient(ctx)
++	original := client.Transport
++	t.Cleanup(func() { client.Transport = original })
++	req := mcp.CallToolRequest{Params: mcp.CallToolParams{
++		Name: "osm_query_bbox",
++		Arguments: map[string]any{
++			"bbox": map[string]float64{"minLat": 55.80, "maxLat": 55.82, "minLon": 37.49, "maxLon": 37.51},
++			"tags": map[string]string{"amenity": "cafe"},
++		},
++	}}
++	cases := []struct {
++		name      string
++		body      string
++		wantError bool
++		wantCount int
++	}{
++		{"partial with results", `{"elements":[{"type":"node","id":1}],"remark":"runtime error: timeout"}`, true, 0},
++		{"missing", `{}`, true, 0},
++		{"null", `{"elements":null}`, true, 0},
++		{"truncated", `{"elements":[`, true, 0},
++		{"valid empty", `{"elements":[]}`, false, 0},
++		{"valid nonempty", `{"elements":[{"id":2,"type":"way","center":{"lat":55.81,"lon":37.50}}]}`, false, 1},
++	}
++	for _, tc := range cases {
++		t.Run(tc.name, func(t *testing.T) {
++			client.Transport = placesRoundTripFunc(func(req *http.Request) (*http.Response, error) {
++				return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(tc.body))}, nil
++			})
++			result, err := HandleOSMQueryBBox(ctx, req)
++			if err != nil || result == nil || result.IsError != tc.wantError {
++				t.Fatalf("unexpected result: %+v, error: %v", result, err)
++			}
++			if tc.wantError {
++				return
++			}
++			var output struct {
++				Complete bool              `json:"complete"`
++				Elements []json.RawMessage `json:"elements"`
++			}
++			if err := json.Unmarshal([]byte(result.Content[0].(mcp.TextContent).Text), &output); err != nil {
++				t.Fatal(err)
++			}
++			if !output.Complete || output.Elements == nil || len(output.Elements) != tc.wantCount {
++				t.Fatalf("unexpected successful payload: %+v", output)
++			}
++		})
++	}
++}

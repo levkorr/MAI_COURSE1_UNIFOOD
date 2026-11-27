@@ -6,10 +6,10 @@
       "category": "food",
       "label": "Быстрое питание",
       "icon": "🍜",
-      "lat": 55.85656645,
-      "lon": 37.690086962500004,
+      "lat": 55.8564133,
+      "lon": 37.69003,
       "walk": 6,
-      "distance": 341,
+      "distance": 343,
       "price": "Цены не указаны",
       "address": "Ярославское шоссе, 26 с17",
       "hours": "Mo-Fr 08:00-17:00",
@@ -31,6 +31,22 @@
       "hours": "Часы работы не указаны",
       "source_url": "https://www.openstreetmap.org/node/1321097006",
       "base": 51
+    },
+    {
+      "id": "relation/8010391",
+      "name": "Марина",
+      "category": "food",
+      "label": "Ресторан",
+      "icon": "🍜",
+      "lat": 55.8593365,
+      "lon": 37.6993806,
+      "walk": 8,
+      "distance": 437,
+      "price": "Цены не указаны",
+      "address": "Адрес не указан в OSM",
+      "hours": "Часы работы не указаны",
+      "source_url": "https://www.openstreetmap.org/relation/8010391",
+      "base": 46
     },
     {
       "id": "node/3105115879",
@@ -81,6 +97,6 @@
       "base": 42
     }
   ],
-  "fetched_at": 1795607704.232518,
-  "source": "OpenStreetMap API"
+  "fetched_at": 1795816707,
+  "source": "OpenStreetMap MCP / osm_query_bbox"
 }
